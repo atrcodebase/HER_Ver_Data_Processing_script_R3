@@ -1,0 +1,97 @@
+hmis_data$data <- hmis_data$data %>%
+  mutate(HF_Type = case_when(
+    HF_Type %in% "RH" ~ "Regional Hospital (RH)",
+    HF_Type %in% "PH" ~ "Provincial Hospital (PH)",
+    HF_Type %in% "DH" ~ "District hospital (DH)",
+    HF_Type %in% "CHC" ~ "Comprehensive Health Centre (CHC)",
+    HF_Type %in% "CHC+" ~ "Comprehensive Health Centre (CHC +)",
+    HF_Type %in% "BHC" ~ "Basic Health Centre (BHC)",
+    HF_Type %in% "BHC+" ~ "Basic Health Centre (BHC+)",
+    HF_Type %in% "SHC" ~ "Sub Health Centre (SHC)",
+    TRUE ~ HF_Type
+  ))
+hmis_data$rep_service <- hmis_data$rep_service %>%
+  mutate(Type_of_service_lbl=case_when(
+    Type_of_service_id %in% "ANC-1" ~ "Ante-natal care (ANC)",
+    Type_of_service_id %in% "PNC-2" ~ "Post-natal care (PNC)",
+    Type_of_service_id %in% "ID-3" ~ "Institutional Delivery",
+    Type_of_service_id %in% "PV-4" ~ "Pentavalent vaccine (3rd dose)",
+    Type_of_service_id %in% "FP-5" ~ "Couple-year protection (CYP)/Family Planning",
+    Type_of_service_id %in% "TT-6" ~ "Toxoid Tetanus (DT+/TT+) vaccine (2nd dose and plus) for women of reproductive age",
+    Type_of_service_id %in% "TB-7" ~ "Tuberculosis exam (TB smear+) case cured",
+    Type_of_service_id %in% "GM-9" ~ "Growth monitoring of under 2 years",
+    Type_of_service_id %in% "U5-8" ~ "Under 5 children morbidities",
+    Type_of_service_id %in% "CS-10" ~ "C-section",
+    Type_of_service_id %in% "MS-11" ~ "Major surgery",
+    TRUE ~ Type_of_service_lbl
+  ))
+hmis_data$rep_service_hf_register <- hmis_data$rep_service_hf_register %>%
+  mutate(Type_of_service_name_hf_register=case_when(
+    Type_of_service_id_hf_register %in% "ANC-1-1" ~ "Ante-natal care (ANC)",
+    Type_of_service_id_hf_register %in% "FP-5-1" ~ "Condom cycles",
+    Type_of_service_id_hf_register %in% "FP-5-2" ~ "Pill cycles ( POP and COC)",
+    Type_of_service_id_hf_register %in% "FP-5-3" ~ "Injections/Sayana press cycle",
+    Type_of_service_id_hf_register %in% "FP-5-4" ~ "Intra Uterine Devices (IUDs)",
+    Type_of_service_id_hf_register %in% "FP-5-5" ~ "Implants",
+    Type_of_service_id_hf_register %in% "FP-5-6" ~ "Tube Ligations",
+    Type_of_service_id_hf_register %in% "FP-5-7" ~ "vasectomies",
+    Type_of_service_id_hf_register %in% "GM-9-3" ~ "GM",
+    Type_of_service_id_hf_register %in% "GM-9-1" ~ "Female children",
+    Type_of_service_id_hf_register %in% "GM-9-2" ~ "Male children",
+    Type_of_service_id_hf_register %in% "ID-3-1" ~ "Institutional Delivery",
+    Type_of_service_id_hf_register %in% "PV-4-3" ~ "Pentavalent vaccine (3rd dose)",
+    Type_of_service_id_hf_register %in% "PV-4-1" ~ "Female children",
+    Type_of_service_id_hf_register %in% "PV-4-2" ~ "Male children",
+    Type_of_service_id_hf_register %in% "PNC-2-1" ~ "Post-natal care (PNC)",
+    Type_of_service_id_hf_register %in% "TT-6-1" ~ "TT+ vaccines",
+    Type_of_service_id_hf_register %in% "U5-8-1" ~ "Under 5 Morbidities (all cases excluding code number 23, 26, 27, and 99)",
+    Type_of_service_id_hf_register %in% "U5-8-2" ~ "Female children",
+    Type_of_service_id_hf_register %in% "U5-8-3" ~ "Male children",
+    Type_of_service_id_hf_register %in% "TB-7-1" ~ "TB cure",
+    Type_of_service_id_hf_register %in% "TB-7-2" ~ "females",
+    Type_of_service_id_hf_register %in% "TB-7-3" ~ "males",
+    Type_of_service_id_hf_register %in% "TB-7-4" ~ "Microscopic",
+    Type_of_service_id_hf_register %in% "TB-7-5" ~ "GeneXpert",
+    Type_of_service_id_hf_register %in% "TB-7-6" ~ "Calture",
+    Type_of_service_id_hf_register %in% "CS-10-1" ~ "C-section",
+    Type_of_service_id_hf_register %in% "MS-11-1" ~ "major surgeries",
+    Type_of_service_id_hf_register %in% "MS-11-2" ~ "female",
+    Type_of_service_id_hf_register %in% "MS-11-3" ~ "male",
+    TRUE ~ Type_of_service_name_hf_register
+  ))
+hmis_data$rep_service_hmis <- hmis_data$rep_service_hmis %>%
+  mutate(Type_of_service_name_hmis=case_when(
+    Type_of_service_id_hmis %in% "ANC-1-1" ~ "Ante-natal care (ANC)",
+    Type_of_service_id_hmis %in% "FP-5-1" ~ "Condom cycles",
+    Type_of_service_id_hmis %in% "FP-5-2" ~ "Pill cycles ( POP and COC)",
+    Type_of_service_id_hmis %in% "FP-5-3" ~ "Injections/Sayana press cycle",
+    Type_of_service_id_hmis %in% "FP-5-4" ~ "Intra Uterine Devices (IUDs)",
+    Type_of_service_id_hmis %in% "FP-5-5" ~ "Implants",
+    Type_of_service_id_hmis %in% "FP-5-6" ~ "Tube Ligations",
+    Type_of_service_id_hmis %in% "FP-5-7" ~ "vasectomies",
+    Type_of_service_id_hmis %in% "GM-9-3" ~ "GM",
+    Type_of_service_id_hmis %in% "GM-9-1" ~ "Female children",
+    Type_of_service_id_hmis %in% "GM-9-2" ~ "Male children",
+    Type_of_service_id_hmis %in% "ID-3-1" ~ "Institutional Delivery",
+    Type_of_service_id_hmis %in% "PV-4-3" ~ "Pentavalent vaccine (3rd dose)",
+    Type_of_service_id_hmis %in% "PV-4-1" ~ "Female children",
+    Type_of_service_id_hmis %in% "PV-4-2" ~ "Male children",
+    Type_of_service_id_hmis %in% "PNC-2-1" ~ "Post-natal care (PNC)",
+    Type_of_service_id_hmis %in% "TT-6-1" ~ "TT+ vaccines",
+    Type_of_service_id_hmis %in% "U5-8-1" ~ "Under 5 Morbidities (all cases excluding code number 23, 26, 27, and 99)",
+    Type_of_service_id_hmis %in% "U5-8-2" ~ "Female children",
+    Type_of_service_id_hmis %in% "U5-8-3" ~ "Male children",
+    Type_of_service_id_hmis %in% "TB-7-1" ~ "TB cure",
+    Type_of_service_id_hmis %in% "TB-7-2" ~ "females",
+    Type_of_service_id_hmis %in% "TB-7-3" ~ "males",
+    Type_of_service_id_hmis %in% "TB-7-4" ~ "Microscopic",
+    Type_of_service_id_hmis %in% "TB-7-5" ~ "GeneXpert",
+    Type_of_service_id_hmis %in% "TB-7-6" ~ "Calture",
+    Type_of_service_id_hmis %in% "CS-10-1" ~ "C-section",
+    Type_of_service_id_hmis %in% "MS-11-1" ~ "major surgeries",
+    Type_of_service_id_hmis %in% "MS-11-2" ~ "female",
+    Type_of_service_id_hmis %in% "MS-11-3" ~ "male",
+    TRUE ~ Type_of_service_name_hmis
+  ))
+
+# hmis_data$rep_service_hmis %>% count(Type_of_service_name_hmis)
