@@ -15,10 +15,10 @@ vig_numeric_cols <- read_excel(vignette_tool_path, "survey") %>% filter(type%in%
 patient_numeric_cols <- read_excel(patient_tool_path, "survey") %>% filter(type%in%c("integer", "decimal")) %>% pull(name) 
 
 qqc_no_stock_card <- read_excel(qqc_tool_path, sheet = "survey", guess_max = 50000) %>% 
-  filter(hint %in% "[if there is no stock card put 999]") %>% pull(name)
+  filter(hint %in% c("[if there is no stock card put 999]", "[if there is no stock card put 9999]")) %>% pull(name)
 qqc_no_stock_card_amc <- read_excel(qqc_tool_path, sheet = "survey", guess_max = 50000) %>% 
-  filter(hint %in% "[if AMC is not recorded in the stock card/or there is no stock card put 999]") %>% pull(name)
-
+  filter(hint %in% c("[if AMC is not recorded in the stock card/or there is no stock card put 999]",
+                     "[if AMC is not recorded in the stock card/or there is no stock card put 9999]")) %>% pull(name)
 
 ## HF Level Data Verification ----------------------------------------------------------------------
 HF_data$data <- HF_data$data %>%
@@ -115,13 +115,13 @@ qqc_data$data <- qqc_data$data %>%
   mutate(across(all_of(c(qqc_no_stock_card, qqc_no_stock_card_amc)), as.character)) %>% 
   mutate(across(all_of(qqc_no_stock_card), function(x){
     x = case_when(
-      x %in% c(999, "999") ~ "No stock card",
+      x %in% c(999, 9999, 99999) ~ "No stock card",
       TRUE ~ x
     )}
     )) %>% 
   mutate(across(all_of(qqc_no_stock_card_amc), function(x){
     x = case_when(
-      x %in% c(999, "999") ~ "No stock card/AMC not recorded",
+      x %in% c(999, 9999, 99999) ~ "No stock card/AMC not recorded",
       TRUE ~ x
     )}
     )) %>% 

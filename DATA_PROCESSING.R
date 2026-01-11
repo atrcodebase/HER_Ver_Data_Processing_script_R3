@@ -135,8 +135,8 @@ if(nrow(translation_log_discrep) !=0){
 
 ## Recode ------------------------------------------------------------------------------------------
 # file.edit("R/recode.R")
-source("R/recode.R") # Check for codes q7_1_Reported_AMC
-
+source("R/recode.R") 
+# Check relabel function across all tools, add correct label based on each tool
 
 # produce qa-backlog -------------------------------------------------------------------------------
 # Check this part later
