@@ -64,7 +64,7 @@ translation_log <- readr::read_csv(paste0(url, "gid=1083946710&single=true&outpu
 # rm(qa_log1, qa_log2)
 
 # Join QA Status -----------------------------------------------------------------------------------
-count(qa_log, Tool, QA_Status) %>% View
+count(qa_log, Tool, QA_Status) # %>% View
 qa_log_sub <- qa_log %>% 
   select(KEY=KEY_Unique, qa_status=QA_Status, Tool) %>% 
   mutate(qa_status = case_when(
@@ -106,7 +106,7 @@ patient_data %>% count(qa_status)
 # apply correction log -----------------------------------------------------------------------------
 correction_log %>% count(Tool)
 # file.edit("R/apply_cleaning_log.R")
-source("R/apply_cleaning_log.R")  #### Update tool names in each part of the script onces tools are added
+source("R/apply_cleaning_log.R")  #### Check Red Flags Verification Tool
 if(nrow(correction_log_discrep) !=0){
   print("Correction Logs not applied -------------------")
   correction_log_discrep
@@ -135,8 +135,8 @@ if(nrow(translation_log_discrep) !=0){
 
 ## Recode ------------------------------------------------------------------------------------------
 # file.edit("R/recode.R")
-source("R/recode.R") 
-# Check relabel function across all tools, add correct label based on each tool
+source("R/recode.R") # Note: Don't relabel numerics in analysis data
+
 
 # produce qa-backlog -------------------------------------------------------------------------------
 # Check this part later
@@ -188,7 +188,7 @@ source("R/filter_approved_data.R") # *** QQC filter sheets with no image
 
 ## Logic check -------------------------------------------------------------------------------------
 # file.edit("R/logic_check.R")
-source("R/logic_check.R") # Not added yet
+source("R/logic_check.R") 
 
 # Compare dataset responses with the Tools --------------------------------------------------------
 # file.edit("R/dataset_responses_check.R")

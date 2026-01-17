@@ -48,6 +48,12 @@ patient_logical_issues <- rbind(
 )
 
 
+#### Flag Numeric values in Other/Numeric Questions
+patient_other_num_issues = rbind(
+  flag_numeric_values(patient_data_approved, patient_tool_path, Tool="Patient")
+)
+
+
 ## HF Level checks ---------------------------------------------------------------------------------
 duplicate_patients_ver <- patient_data_approved %>% 
   janitor::get_dupes(MA_PatientID) %>%

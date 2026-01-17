@@ -205,6 +205,17 @@ hmis_logical_issues <- plyr::rbind.fill(
     select(Questions, Values, issue, KEY)
 )
 
+#### Flag Numeric values in Other/Numeric Questions
+hmis_other_num_issues <- c()
+for(sheet in names(hmis_data_approved)){
+  # Log
+  hmis_other_num_issues = rbind(
+    hmis_other_num_issues,
+    flag_numeric_values(hmis_data_approved[[sheet]], hmis_tool_path, Tool="HMIS")
+  )
+}
+
+
 # ## Check Constraint Issues 
 # constraint_rules <- read_excel("input/tool_relevancy_rules/HER_Verification_constraint_rules.xlsx", sheet="HMIS")
 # 

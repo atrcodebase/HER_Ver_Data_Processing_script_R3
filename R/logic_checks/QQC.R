@@ -231,6 +231,7 @@ QQC_logical_issues <- plyr::rbind.fill(
   
   # Flagging if only one count is discrepant but later reported two or more are. 
   qqc_data_approved$data %>%
+    rowwise() %>% 
     filter(
       ((Medicine1_Balance_in_the_stock_card != Medicine1_PC & Medicine2_Balance_in_the_stock_card %in% Medicine2_PC & Medicine3_Balance_in_the_stock_card %in% Medicine3_PC) |
          (Medicine1_Balance_in_the_stock_card %in% Medicine1_PC & Medicine2_Balance_in_the_stock_card != Medicine2_PC & Medicine3_Balance_in_the_stock_card %in% Medicine3_PC) |
@@ -327,6 +328,14 @@ QQC_logical_issues <- plyr::rbind.fill(
   ###### 10. ANTENATAL CARE
 )
 
+
+#### Flag Numeric values in Other/Numeric Questions
+qqc_other_num_issues = rbind(
+  flag_numeric_values(qqc_data_approved$data, qqc_tool_path, Tool="QQC")
+)
+
+
+
 ## HF Level checks ---------------------------------------------------------------------------------
 qqc_int_type <- c("1. General Management", "2. Hygiene and Sterilization", "3. Curative Consultation (OPD)", 
                   "4. Family Planning", "5. Laboratory", "6. Essential Medicine Management", 
@@ -378,6 +387,7 @@ no_photo_count <- c("data", "q1_2_1_Photos", "q1_2_2_Photos", "q1_2_3_Photos",
                     "q2_3_3_Photos", "q2_3_4_Photos", "q2_3_5_Photo_Re", #"q2_3_7_Photos", 
                     "q2_3_8_photos", "q2_5_1_Photos", "q3_23_Photos")
 
+sheet="q2_3_1_Photos"
 for(sheet in names(qqc_data_approved)[names(qqc_data_approved) %notin% no_photo_count]){
   # if(sheet %in% c("q1_4_1", "q1_4_2",	"q1_4_3", "q1_4_4",
   #                 "q1_9_1",	"q1_9_2", "q1_9_3")){
@@ -392,6 +402,7 @@ for(sheet in names(qqc_data_approved)[names(qqc_data_approved) %notin% no_photo_
     col_count <- paste0(sheet, "_Count")
   } else{ 
     message("No repeat sheet count found for: ", sheet)
+    break
   }
   
   QQC_count_mismatch <- rbind(

@@ -80,11 +80,7 @@ sample_info <- plyr::rbind.fill(
 missing_HFs <- ver_sample %>% #filter(Site_Visit_ID %in% "HER-BDS-HF2507-Q1-2023-595-01")
   full_join(sample_info, 
             by = join_by("Site_Visit_ID", "Province", "District", "HF_Code_based_on_sample", "HF_Name_based_on_Sample")) %>% 
-  mutate(Missing_data=case_when(
-    is.na(Missing_data) & is.na(Collected_data) ~ paste0(tool_names, collapse = " & "),
-    TRUE ~ Missing_data
-  ),
-  Total_collected_tools=case_when(
+  mutate( Total_collected_tools=case_when(
     is.na(Total_collected_tools) ~ 0,
     TRUE ~ Total_collected_tools
   ),
@@ -93,7 +89,13 @@ missing_HFs <- ver_sample %>% #filter(Site_Visit_ID %in% "HER-BDS-HF2507-Q1-2023
       Sample_Type %notin% c("Replaced", "Replacement") ~ "One or more Health Facility related information is different across tools",
     Total_collected_tools == 0 ~ "Sampled HF Not visited yet!",
     is.na(SP_Name_based_on_sample) ~ "Site Visit not found in the sample!",
-    Total_collected_tools == 6 ~ "Complete!"
+    Total_collected_tools == 6 | (Missing_data %in% "QQC" & HF_Type_based_on_sample %notin% c("BHC", "CHC", "DH")) ~ "Complete (QQC not collected if HF not BHC/CHC/DH)!"
+    # "QQC only collected for BHC, CHC & DH"
+  ),
+  Missing_data=case_when(
+    is.na(Missing_data) & is.na(Collected_data) ~ paste0(tool_names, collapse = " & "),
+    (grepl("QQC", Missing_data) & HF_Type_based_on_sample %notin% c("BHC", "CHC", "DH")) ~ str_remove(Missing_data, "QQC"),
+    TRUE ~ Missing_data
   )) 
 # Check if same HF has different data across tools
 # missing_HFs %>% janitor::get_dupes(HF_Code_based_on_sample) %>% View
@@ -182,9 +184,22 @@ repeatsheet_count_mismatch <- plyr::rbind.fill(
   # sp_count_mismatch
 )
 
+# Potential Numeric Codes 
+numeric_issues_list <- plyr::rbind.fill(
+  hf_other_num_issues,
+  qoc_other_num_issues,
+  qqc_other_num_issues,
+  hmis_other_num_issues,
+  # sp_count_mismatch,
+  vign_other_num_issues,
+  patient_other_num_issues
+)
+
+
 # Final Export List
 logical_issues_list <- list(
   logical_issues=logical_issues,
+  numeric_issues=numeric_issues_list,
   missing_sample_data=missing_sample_data,
   repeat_sheet_issues=repeatsheet_count_mismatch,
   rejec_approved=rejec_approved

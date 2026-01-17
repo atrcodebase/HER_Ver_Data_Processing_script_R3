@@ -58,12 +58,13 @@ hf_logical_issues <- bind_rows(
            Values = paste0(Any_Staff_Scheduled_Overnight)) %>%
     select(Questions, Values, issue, KEY),
   
-  HF_data_approved$data %>% 
-    filter(How_Many_Members_On_Site > Hospital_Community_Board_Sum) %>% 
-    mutate(issue = "The number of present board member is reported greater than total board members for the hospital",
-           Questions = "How_Many_Members_On_Site - Hospital_Community_Board_Sum",
-           Values = paste0(How_Many_Members_On_Site, " - ", Hospital_Community_Board_Sum)) %>%
-    select(Questions, Values, issue, KEY),
+  # QA: they are not relevant, one is the repeat sheet count and the other the members on site
+  # HF_data_approved$data %>% 
+  #   filter(How_Many_Members_On_Site > Hospital_Community_Board_Sum) %>% 
+  #   mutate(issue = "The number of present board member is reported greater than total board members for the hospital",
+  #          Questions = "How_Many_Members_On_Site - Hospital_Community_Board_Sum",
+  #          Values = paste0(How_Many_Members_On_Site, " - ", Hospital_Community_Board_Sum)) %>%
+  #   select(Questions, Values, issue, KEY),
 
   HF_data_approved$data %>% 
     filter((One_Member_On_Site_Today %in% "No" & How_Many_Members_On_Site > 0) |
@@ -242,10 +243,12 @@ hf_logical_issues <- bind_rows(
 )
   
 # Check the repeat sheet counts vs main values
-sub_cols <- c("Control_Temperature", "Windows_Can_Open", "Sunlight_cannot_enter", 
-  "Area_Free_Moisture", "Old_Storage_available", "Filled_Tempreature_Chart", 
-  "Medicine_Not_Stored", "Medicine_Stored_Systematic", "Medicine_Stored_First_Expired_First", 
-  "Evidence_Of_Pests", "Temperature_Chart") #"Register_Lab_Department_Available") # Count not added yet in the data
+sub_cols <- c("Control_Temperature", "Windows_Can_Open", 
+              # "Sunlight_cannot_enter",  # Based on the relevancy defined for the question "Sunlight_cannot_enter", for both options (yes, no), the repeat group for taking the photo is opened. Therefore, there is no need to compare these two fields.
+              # "Medicine_Stored_Systematic", # Based on the relevancy defined for the question "Medicine_Stored_Systematic", for both options (yes, no), the repeat group for taking the photo is opened. Therefore, there is no need to compare these two fields.
+              "Area_Free_Moisture", "Old_Storage_available", "Filled_Tempreature_Chart", 
+              "Medicine_Not_Stored",  "Medicine_Stored_First_Expired_First", 
+              "Evidence_Of_Pests", "Temperature_Chart") #"Register_Lab_Department_Available") # Count not added yet in the data
 # Add checks for these two as well once data is added
 # Register_Lab_Department_Available_Count
 # Is_There_A_Specific_Room_For_X_Ray
@@ -261,6 +264,18 @@ for(col_i in sub_cols){
       select(Questions, Values, issue, KEY=KEY_Unique)
   )
 }
+
+
+#### Flag Numeric values in Other/Numeric Questions
+hf_other_num_issues <- c()
+for(sheet in names(HF_data_approved)){
+  # Log
+  hf_other_num_issues = rbind(
+    hf_other_num_issues,
+    flag_numeric_values(HF_data_approved[[sheet]], hf_tool_path, Tool="HF_data")
+  )
+}
+
 
 ## HF Level checks ---------------------------------------------------------------------------------
 hf_int_types <- c("Personnel (section 1)", "Medicine (section 2)", "Consumable (section 3)", 
@@ -459,10 +474,10 @@ HF_count_mismatch <- rbind(
     count(KEY=PARENT_KEY, name="repeat_sheet_count", Sheet="Test_Component_Details") %>%
     full_join(HF_data_approved$Lab %>% select(main_sheet_count=Test_Component_Details_count, KEY=KEY_Unique) %>%
                 mutate(Sheet="Test_Component_Details", Question="Test_Component_Details_count"), by=c("KEY", "Sheet")),
-  HF_data_approved$Test_Component_Details %>%
-    count(KEY=PARENT_KEY, name="repeat_sheet_count", Sheet="Test_Component_Details") %>%
-    full_join(HF_data_approved$Lab %>% select(main_sheet_count=subtests, KEY=KEY_Unique) %>%
-                mutate(Sheet="Test_Component_Details", Question="subtests"), by=c("KEY", "Sheet")),
+  # HF_data_approved$Test_Component_Details %>%
+  #   count(KEY=PARENT_KEY, name="repeat_sheet_count", Sheet="Test_Component_Details") %>%
+  #   full_join(HF_data_approved$Lab %>% select(main_sheet_count=subtests, KEY=KEY_Unique) %>%
+  #               mutate(Sheet="Test_Component_Details", Question="subtests"), by=c("KEY", "Sheet")),
   
   # x_ray_room
   # HF_data_approved$x_ray_room %>%
@@ -493,3 +508,10 @@ HF_count_mismatch <- rbind(
   mutate(Tool="HF_Verification") 
 
 
+# HF_data_approved$Test_Component_Details %>%
+#   count(KEY=PARENT_KEY, name="repeat_sheet_count", Sheet="Test_Component_Details") %>%
+#   full_join(H %>%
+#               mutate(Sheet="Test_Component_Details", Question="subtests"), by=c("KEY", "Sheet")),
+# 
+# HF_data_approved$Lab %>% count(was_one_test_made)
+# select(main_sheet_count=subtests, KEY=KEY_Unique)

@@ -103,6 +103,14 @@ qoc_logical_issues <- bind_rows(
   # inconsistent_Responses
 )
 
+
+
+#### Flag Numeric values in Other/Numeric Questions
+qoc_other_num_issues = rbind(
+  flag_numeric_values(qoc_data_approved$data, qoc_tool_path, Tool="QoC"),
+  flag_numeric_values(qoc_data_approved$Health_Worker_Interview_Ques..., qoc_tool_path, Tool="QoC")
+)
+
 ## HF Level checks ---------------------------------------------------------------------------------
 # Total staff interviewed in an HF is less than the requirement
 qoc_staff_interview <- qoc_data_approved$data %>%

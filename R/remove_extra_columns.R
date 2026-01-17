@@ -3,8 +3,8 @@ extra_cols <- read_excel("input/extra_columns.xlsx", sheet="R3")
 extra_cols %>% count(Tool, Sheet)
 
 # Temp
-extra_cols <- extra_cols %>% filter(Reason_for_removal %notin% "PII") %>% unique()
-extra_cols %>% count(Reason_for_removal)
+# extra_cols <- extra_cols %>% filter(Reason_for_removal %notin% "PII") %>% unique()
+# extra_cols %>% count(Reason_for_removal)
 
 ## Remove Extra columns ----------------------------------------------------------------------------
 ## HF Level Data Verification
@@ -17,7 +17,7 @@ for(sheet in names(HF_data_approved)){
 qoc_data_approved$data <- qoc_data_approved$data %>% 
   select(-all_of(extra_cols$questions[extra_cols$Tool %in% "QoC" & extra_cols$Sheet %in% "data"]))
 qoc_data_approved$Health_Worker_Interview_Ques... <- qoc_data_approved$Health_Worker_Interview_Ques... %>% 
-  select(-all_of(extra_cols$questions[extra_cols$Tool %in% "QoC" & extra_cols$Sheet %in% "Health_Worker"]))
+  select(-all_of(extra_cols$questions[extra_cols$Tool %in% "QoC" & extra_cols$Sheet %in% "Health_Worker_Interview_Ques..."]))
 
 ## QQC
 for(sheet in names(qqc_data_approved)){
@@ -47,7 +47,7 @@ vignette_data_approved <- vignette_data_approved %>%
 
 ## Patient Verification 
 patient_data_approved <- patient_data_approved %>% 
-  select(-all_of(extra_cols$questions[extra_cols$Tool %in% "Patient_Verification" & extra_cols$Sheet %in% "data"]))
+  select(-any_of(extra_cols$questions[extra_cols$Tool %in% "Patient_Verification" & extra_cols$Sheet %in% "data"]))
 
 
 # remove extra objects -----------------------------------------------------------------------------

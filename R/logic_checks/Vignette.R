@@ -47,3 +47,9 @@ vignette_logical_issues <- bind_rows(
            Values = paste0(child_age_months2)) %>%
     select(Questions, Values, issue, KEY)
 )
+
+
+#### Flag Numeric values in Other/Numeric Questions
+vign_other_num_issues = rbind(
+  flag_numeric_values(vignette_data_approved, vignette_tool_path, Tool="Vignette")
+)

@@ -2,7 +2,9 @@
 options(scipen = 999)
 tabs <- c(names(HF_data), names(qoc_data), names(qqc_data), names(hmis_data), names(sp_data)) # Patient & Vignette only 1 sheet
 sm_variables <- read_excel("input/select_multiple_questions.xlsx") %>% pull(questions) 
-tool_names <- c("Data Verification", "HMIS", "QQC", "QoC", "SP", "Patient", "Vignette")
+tool_names <- c("Data Verification", "HMIS", "QQC", "QoC", "SP", "Patient", "Vignette", 
+                "Red Flags Verification Tool" # Data not processed yet
+                )
 
 ## Filter empty rows
 correction_log_filtered <- correction_log %>%
@@ -66,7 +68,17 @@ correction_log_filtered <- correction_log_filtered %>%
     Tool %in% c("HER_Re_Patient_Verification_R3", "HER Re Patient Verification") ~ "Patient",
     Tool %in% c("HER_Rev_Service_Assessment_Sampling_Verification_R3", "Service Assessment & Sampling Verification Tool") ~ "HMIS",
     TRUE ~ Tool
-  )) #%>% 
+  ),
+  # Fixing it in here because QA log messes up the tab_name
+  question = case_when(
+    question %in% "q2_3_7_photos_Count" ~ "q2_3_7_Photos_Count",
+    TRUE ~ question
+  ),
+  Tab_Name = case_when(
+    question %in% c("q2_3_7_photos_Count", "q2_3_7_Photos_Count") ~ "data",
+    TRUE ~ Tab_Name
+  )
+  ) #%>% 
   # Temporary Filter until I check this in detail
   # filter(question %notin% "Signature_Of_Respondent")
 correction_log_filtered %>% count(Tool)
