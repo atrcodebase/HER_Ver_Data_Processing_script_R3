@@ -36,14 +36,6 @@ sp_data = read_xlsx_sheets("input/raw_data/HER Re - SP Personnel Attendance Chec
 vignette_data = read_xlsx_sheets("input/raw_data/HER Re - Vignette R3.xlsx")
 patient_data = read_excel("input/raw_data/HER Re Patient Verification - R3.xlsx", guess_max = 500000)
 
-HF_data$data %>% nrow()
-qoc_data$data %>% nrow()
-qqc_data$data %>% nrow()
-hmis_data$data %>% nrow()
-sp_data$data %>% nrow()
-vignette_data %>% nrow()
-patient_data %>% nrow()
-
 # read qa-log, correction log, and translation log -------------------------------------------
 url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTdyi6ncX2kmDFajgSdvYepf8OC7fAJOeB67GqkEv5gvudykUQClQbm3sFxWrkaEcDJPfEZ_rsg3dUx/pub?"
 qa_log <- readr::read_csv(paste0(url, "gid=652263144&single=true&output=csv"), col_types = "c")
@@ -96,8 +88,8 @@ patient_data <- patient_data %>%
   left_join(filter(qa_log_sub, Tool=="HER Re Patient Verification"), by="KEY") %>% select(-Tool) 
 
 HF_data$data %>% count(qa_status)
-qoc_data$data %>% count(qa_status)
-qqc_data$data %>% count(qa_status)
+# qoc_data$data %>% count(qa_status)
+# qqc_data$data %>% count(qa_status)
 hmis_data$data %>% count(qa_status)
 sp_data$data %>% count(qa_status)
 vignette_data %>% count(qa_status)
@@ -136,7 +128,7 @@ if(nrow(translation_log_discrep) !=0){
 ## Recode ------------------------------------------------------------------------------------------
 # file.edit("R/recode.R")
 source("R/recode.R") # Note: Don't relabel numerics in analysis data
-
+# source("R/recode_analysis.R")
 
 # produce qa-backlog -------------------------------------------------------------------------------
 # Check this part later
@@ -241,13 +233,13 @@ openxlsx::write.xlsx(patient_data, paste0("output/cleaned_data/HER_Patient_Verif
 check_path("output/client_data")
 archive_datasets("output/client_data") # Move previous datasets to Archive
 # header_color <- "#91CBD9"
-export_datasets(HF_data_approved, paste0("output/client_data/HER_HF_Level_Data_Verification_R3_", lubridate::today(), ".xlsx")) # cleaned_approved
-export_datasets(qoc_data_approved, paste0("output/client_data/HER_QoC_Interview_with_Health_Workers_R3_", lubridate::today(), ".xlsx"))
-export_datasets(qqc_data_approved, paste0("output/client_data/HER_QQC_R3_", lubridate::today(), ".xlsx"))
-export_datasets(hmis_data_approved, paste0("output/client_data/HER_Service_Assessment_Sampling_Verification_R3_", lubridate::today(), ".xlsx"))
-export_datasets(sp_data_approved, paste0("output/client_data/HER_SP_Personnel_Attendance_Check_R3_", lubridate::today(), ".xlsx"))
-export_datasets(list(data=vignette_data_approved), paste0("output/client_data/HER_Vignette_R3_", lubridate::today(), ".xlsx"))
-export_datasets(list(data=patient_data_approved), paste0("output/client_data/HER_Patient_Verification_R3_", lubridate::today(), ".xlsx"))
+export_datasets(HF_data_approved, paste0("output/client_data/HER_Ver_R3_HF_Level_Data_Verification_", lubridate::today(), ".xlsx")) # cleaned_approved
+export_datasets(qoc_data_approved, paste0("output/client_data/HER_Ver_R3_QoC_Interview_", lubridate::today(), ".xlsx"))
+export_datasets(qqc_data_approved, paste0("output/client_data/HER_Ver_R3_QQC_", lubridate::today(), ".xlsx"))
+export_datasets(hmis_data_approved, paste0("output/client_data/HER_Ver_R3_Service_Assessment_Sampling_Verification_", lubridate::today(), ".xlsx"))
+export_datasets(sp_data_approved, paste0("output/client_data/HER_Ver_R3_SP_Personnel_Attendance_Check_", lubridate::today(), ".xlsx"))
+export_datasets(list(data=vignette_data_approved), paste0("output/client_data/HER_Ver_R3_Vignette_", lubridate::today(), ".xlsx"))
+export_datasets(list(data=patient_data_approved), paste0("output/client_data/HER_Ver_R3_Patient_Verification_", lubridate::today(), ".xlsx"))
 
 ## export additional files
 writexl::write_xlsx(qa_tracker_list, "output/QA_Tracker_logs.xlsx", format_headers = F) 

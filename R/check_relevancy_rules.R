@@ -9,7 +9,7 @@ vign_tool_relevancy <- read_excel("input/tool_relevancy_rules/Vignette_relevancy
 patient_tool_relevancy <- read_excel("input/tool_relevancy_rules/Patient_verification_relevancy_rules.xlsx")
 
 ### HF Level Data Verification ---------------------------------------------------------------------
-HF_tool_relevancy <- HF_tool_relevancy %>% 
+HF_tool_relevancy <- HF_tool_relevancy %>%
   mutate(sheet=case_when(
     sheet %in% "Drug_Availability_Reporting_Period" ~ "Drug_Availability_Reporting_...",
     sheet %in% "Medicine_Stored_Systematic_Repeat" ~ "Medicine_Stored_Systematic_R...",
@@ -17,44 +17,44 @@ HF_tool_relevancy <- HF_tool_relevancy %>%
     TRUE ~ sheet
   ))
 HF_data_sub <- HF_data$data %>%
-  select(Consent, Interview_Type_SV, HF_Type, n_available_drug, qa_status, 
+  select(Consent, Interview_Type_SV, HF_Type, n_available_drug, qa_status,
          Can_Speak_With_Two_Members, Control_Temperature, Windows_Can_Open,
-         Sunlight_cannot_enter, Area_Free_Moisture, Old_Storage_available, Filled_Tempreature_Chart, 
+         Sunlight_cannot_enter, Area_Free_Moisture, Old_Storage_available, Filled_Tempreature_Chart,
          Medicine_Not_Stored, Medicine_Stored_Systematic, Medicine_Stored_First_Expired_First,
-        Evidence_Of_Pests, Temperature_Chart, eq_rep, Register_Lab_Department_Available, 
+        Evidence_Of_Pests, Temperature_Chart, eq_rep, Register_Lab_Department_Available,
         Is_There_A_Specific_Room_For_X_Ray,  KEY)
 # Join the subset with all sheets (new variable)
 HF_data_joined <- lapply(HF_data[-1], left_join, HF_data_sub, by = "KEY")
 
 # Join specific columns
-HF_data_joined$Drug_Out_Of_Stock <- HF_data_joined$Drug_Out_Of_Stock %>% 
+HF_data_joined$Drug_Out_Of_Stock <- HF_data_joined$Drug_Out_Of_Stock %>%
   left_join(
     HF_data_joined$Drug_Availability_Reporting_... %>% select(How_Many_Times_Out_Of_Stock_RP, Was_Drug_Out_Of_Stock_RP, KEY_Unique),
     by = c("PARENT_KEY" = "KEY_Unique")
   )
-HF_data_joined$Consumable_Out_Of_Stock_RP <- HF_data_joined$Consumable_Out_Of_Stock_RP %>% 
+HF_data_joined$Consumable_Out_Of_Stock_RP <- HF_data_joined$Consumable_Out_Of_Stock_RP %>%
   left_join(
     HF_data_joined$List_Of_Consumables_RP %>% select(Was_Consumable_Out_Of_Stock_RP, Times_Were_Consumable_Out_Of_Stock_RP, KEY_Unique),
     by = c("PARENT_KEY" = "KEY_Unique")
   )
-HF_data_joined$Test_Component_Details <- HF_data_joined$Test_Component_Details %>% 
+HF_data_joined$Test_Component_Details <- HF_data_joined$Test_Component_Details %>%
   left_join(
     HF_data_joined$Lab %>% select(was_one_test_made, KEY_Unique),
     by = c("PARENT_KEY" = "KEY_Unique")
   )
 # Manually added in relevancy rule
-HF_data_joined$data <- HF_data$data %>% 
+HF_data_joined$data <- HF_data$data %>%
   left_join(
-    HF_data_joined$Personnel %>% 
+    HF_data_joined$Personnel %>%
       mutate(Is_Attendance=paste0(Date_Attendance, "_", Is_Attendance),
-             Mechanism_For_Attendance=paste0(Date_Attendance, "_", Mechanism_For_Attendance)) %>% 
-      group_by(PARENT_KEY) %>% 
+             Mechanism_For_Attendance=paste0(Date_Attendance, "_", Mechanism_For_Attendance)) %>%
+      group_by(PARENT_KEY) %>%
       reframe(Is_Attendance=paste0(Is_Attendance, collapse = ";"),
               Mechanism_For_Attendance=paste0(Mechanism_For_Attendance, collapse = ";")),
     by = c("KEY" = "PARENT_KEY")
   )
 
-# Check Relevancy 
+# Check Relevancy
 HF_relevancy_issues <- check_relevancy_rules(HF_data_joined$data, HF_tool_relevancy, sheet_name="data")
 for(sheet in names(HF_data)[names(HF_data) != "data"]){
   # Check
@@ -67,52 +67,52 @@ for(sheet in names(HF_data)[names(HF_data) != "data"]){
 }
 
 
-### QoC - Interview with Health Workers ------------------------------------------------------------
-qoc_tool_relevancy <- qoc_tool_relevancy %>% 
-  mutate(sheet=case_when(
-    sheet %in% "Health_Worker_Interview_Questions" ~ "Health_Worker_Interview_Ques...",
-    TRUE ~ sheet
-  ))
-
-# Join the subset with all sheets (new variable)
-qoc_interview_joined <- qoc_data$Health_Worker_Interview_Ques... %>%
-  left_join(qoc_data$data %>%
-              select(Staff_member_interviewed_in_this, HF_Type, qa_status, KEY), by=c("PARENT_KEY"="KEY"))
-
-# Check Relevancy Rules
-qoc_relevancy_issues <- rbind(
-  check_relevancy_rules(qoc_data$data, qoc_tool_relevancy, sheet_name="data"),
-  check_relevancy_rules(qoc_interview_joined, qoc_tool_relevancy, sheet_name="Health_Worker_Interview_Ques...")
-  
-)
-
-### QQC --------------------------------------------------------------------------------------------
-# Get relevancy related questions from main sheet to join with other sheets
-qqc_main_cols <- qqc_tool_relevancy %>% 
-  filter(sheet != "data") %>% 
-  pull(relevant_question) %>% 
-  str_split(" - ") %>% unlist() %>% 
-  unique() %>% .[. %in% names(qqc_data$data)]
-
-qqc_data_sub <- qqc_data$data %>%
-  select(all_of(qqc_main_cols), KEY)
-
-# Check Relevancy Rules
-qqc_relevancy_issues <- check_relevancy_rules(qqc_data$data, qqc_tool_relevancy, sheet_name="data")
-# Check relevancy rules of all the sheets
-for(sheet in names(qqc_data)[names(qqc_data) != "data"]){
-  
-  if(nrow(qqc_data[[sheet]])!=0){ # Temp condition
-    qqc_relevancy_issues <- rbind(
-      qqc_relevancy_issues,
-      qqc_data[[sheet]] %>% 
-        left_join(qqc_data_sub, by=c("PARENT_KEY"="KEY")) %>% # All Parent_KEYs are the same as KEY in main sheet
-        check_relevancy_rules(qqc_tool_relevancy, sheet_name=sheet, print=FALSE)
-    )
-  }
-
-}
-
+# ### QoC - Interview with Health Workers ------------------------------------------------------------
+# qoc_tool_relevancy <- qoc_tool_relevancy %>% 
+#   mutate(sheet=case_when(
+#     sheet %in% "Health_Worker_Interview_Questions" ~ "Health_Worker_Interview_Ques...",
+#     TRUE ~ sheet
+#   ))
+# 
+# # Join the subset with all sheets (new variable)
+# qoc_interview_joined <- qoc_data$Health_Worker_Interview_Ques... %>%
+#   left_join(qoc_data$data %>%
+#               select(Staff_member_interviewed_in_this, HF_Type, qa_status, KEY), by=c("PARENT_KEY"="KEY"))
+# 
+# # Check Relevancy Rules
+# qoc_relevancy_issues <- rbind(
+#   check_relevancy_rules(qoc_data$data, qoc_tool_relevancy, sheet_name="data"),
+#   check_relevancy_rules(qoc_interview_joined, qoc_tool_relevancy, sheet_name="Health_Worker_Interview_Ques...")
+#   
+# )
+# 
+# ### QQC --------------------------------------------------------------------------------------------
+# # Get relevancy related questions from main sheet to join with other sheets
+# qqc_main_cols <- qqc_tool_relevancy %>% 
+#   filter(sheet != "data") %>% 
+#   pull(relevant_question) %>% 
+#   str_split(" - ") %>% unlist() %>% 
+#   unique() %>% .[. %in% names(qqc_data$data)]
+# 
+# qqc_data_sub <- qqc_data$data %>%
+#   select(all_of(qqc_main_cols), KEY)
+# 
+# # Check Relevancy Rules
+# qqc_relevancy_issues <- check_relevancy_rules(qqc_data$data, qqc_tool_relevancy, sheet_name="data")
+# # Check relevancy rules of all the sheets
+# for(sheet in names(qqc_data)[names(qqc_data) != "data"]){
+#   
+#   if(nrow(qqc_data[[sheet]])!=0){ # Temp condition
+#     qqc_relevancy_issues <- rbind(
+#       qqc_relevancy_issues,
+#       qqc_data[[sheet]] %>% 
+#         left_join(qqc_data_sub, by=c("PARENT_KEY"="KEY")) %>% # All Parent_KEYs are the same as KEY in main sheet
+#         check_relevancy_rules(qqc_tool_relevancy, sheet_name=sheet, print=FALSE)
+#     )
+#   }
+# 
+# }
+# 
 
 ### HMIS Service assessment ------------------------------------------------------------------------
 hmis_tool_relevancy <- hmis_tool_relevancy %>% 
@@ -180,19 +180,19 @@ for(sheet in names(HF_data)){
   )
 }
 
-## QoC
-qoc_data$data <- qoc_data$data %>% update_series_cols(tool_path = qoc_tool_path, question_separator="_")
-qoc_data$Health_Worker_Interview_Ques... <- qoc_data$Health_Worker_Interview_Ques... %>% update_series_cols(tool_path = qoc_tool_path, question_separator="_")
-# Check if updated correctly
-qoc_SM_issues <- rbind(
-  check_select_multiple(data=qoc_data$data, tool_path = qoc_tool_path, question_separator="_"),
-  check_select_multiple(data=qoc_data$Health_Worker_Interview_Ques..., tool_path = qoc_tool_path, question_separator="_")
-) 
-
-### QQC
-qqc_data$data <- update_series_cols(data=qqc_data$data, tool_path = qqc_tool_path, question_separator="_")
-# Check if updated correctly
-qqc_SM_issues <- check_select_multiple(data=qqc_data$data, tool_path = qqc_tool_path, question_separator="_")
+# ## QoC
+# qoc_data$data <- qoc_data$data %>% update_series_cols(tool_path = qoc_tool_path, question_separator="_")
+# qoc_data$Health_Worker_Interview_Ques... <- qoc_data$Health_Worker_Interview_Ques... %>% update_series_cols(tool_path = qoc_tool_path, question_separator="_")
+# # Check if updated correctly
+# qoc_SM_issues <- rbind(
+#   check_select_multiple(data=qoc_data$data, tool_path = qoc_tool_path, question_separator="_"),
+#   check_select_multiple(data=qoc_data$Health_Worker_Interview_Ques..., tool_path = qoc_tool_path, question_separator="_")
+# ) 
+# 
+# ### QQC
+# qqc_data$data <- update_series_cols(data=qqc_data$data, tool_path = qqc_tool_path, question_separator="_")
+# # Check if updated correctly
+# qqc_SM_issues <- check_select_multiple(data=qqc_data$data, tool_path = qqc_tool_path, question_separator="_")
 
 
 ### HMIS Service assessment
@@ -245,8 +245,8 @@ patient_SM_issues <- check_select_multiple(data=patient_data, tool_path = patien
 # Relevancy
 relevancy_issues <- plyr::rbind.fill(
   HF_relevancy_issues %>% mutate(Tool="HF_Verification"),
-  qoc_relevancy_issues %>% mutate(Tool="QoC"),
-  qqc_relevancy_issues %>% mutate(Tool="QQC"),
+  # qoc_relevancy_issues %>% mutate(Tool="QoC"),
+  # qqc_relevancy_issues %>% mutate(Tool="QQC"),
   hmis_relevancy_issues %>% mutate(Tool="HMIS"),
   sp_relevancy_issues %>% mutate(Tool="SP_Personnel"),
   vignette_relevancy_issues %>% mutate(Tool="Vignette"),
@@ -263,8 +263,8 @@ relevancy_issues <- relevancy_issues %>%
 ## Select Multiple issues
 SM_issues <- plyr::rbind.fill(
   HF_SM_issues %>% mutate(Tool="HF_Verification"),
-  qoc_SM_issues %>% mutate(Tool="QoC"),
-  qqc_SM_issues %>% mutate(Tool="QQC"),
+  # qoc_SM_issues %>% mutate(Tool="QoC"),
+  # qqc_SM_issues %>% mutate(Tool="QQC"),
   HMIS_SM_issues %>% mutate(Tool="HMIS"),
   SP_SM_issues %>% mutate(Tool="SP_Personnel"),
   Vig_SM_issues %>% mutate(Tool="Vignette"),

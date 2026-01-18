@@ -59,7 +59,7 @@ for(sheet in names(HF_data)){
   if(sheet!="data"){
     HF_data[[sheet]] <- HF_data[[sheet]] %>% 
       left_join(HF_data_sub, by=c("KEY")) %>% # New key
-      relocate(Site_Visit_ID:SP_Name_based_on_sample, .before = 1)
+      relocate(Site_Visit_ID:HF_Type, .before = 1)
   }
 }
 

@@ -387,7 +387,6 @@ no_photo_count <- c("data", "q1_2_1_Photos", "q1_2_2_Photos", "q1_2_3_Photos",
                     "q2_3_3_Photos", "q2_3_4_Photos", "q2_3_5_Photo_Re", #"q2_3_7_Photos", 
                     "q2_3_8_photos", "q2_5_1_Photos", "q3_23_Photos")
 
-sheet="q2_3_1_Photos"
 for(sheet in names(qqc_data_approved)[names(qqc_data_approved) %notin% no_photo_count]){
   # if(sheet %in% c("q1_4_1", "q1_4_2",	"q1_4_3", "q1_4_4",
   #                 "q1_9_1",	"q1_9_2", "q1_9_3")){

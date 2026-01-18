@@ -72,10 +72,12 @@ correction_log_filtered <- correction_log_filtered %>%
   # Fixing it in here because QA log messes up the tab_name
   question = case_when(
     question %in% "q2_3_7_photos_Count" ~ "q2_3_7_Photos_Count",
+    question %in% "HF_Name_based_on_sample" ~ "HF_Name_based_on_Sample",
     TRUE ~ question
   ),
   Tab_Name = case_when(
     question %in% c("q2_3_7_photos_Count", "q2_3_7_Photos_Count") ~ "data",
+    question %in% c("HF_Name_based_on_sample", "HF_Name_based_on_Sample") ~ "data",
     TRUE ~ Tab_Name
   )
   ) #%>% 
@@ -99,7 +101,7 @@ correction_log_filtered <- check_log(correction_log_filtered, vignette_data, "Vi
 correction_log_filtered <- check_log(correction_log_filtered, patient_data, "Patient")
 
 # Check duplicates
-correction_log_filtered$duplicates <- duplicated(correction_log_filtered[, c("KEY", "question")], fromLast = T) | duplicated(correction_log_filtered[, c("KEY", "question")])
+correction_log_filtered$duplicates <- duplicated(correction_log_filtered[, c("KEY", "question", "Log_type")], fromLast = T) | duplicated(correction_log_filtered[, c("KEY", "question", "Log_type")])
 
 # Filter issues
 correction_log_issues <- correction_log_filtered %>% 
@@ -162,7 +164,7 @@ qoc_data$data <- apply_log(data = qoc_data$data, log=filter(correction_log_filte
                                       old_value = "old_value",
                                       new_value = "new_value",
                                       KEY = "KEY"))
-qoc_data$Health_Worker_Interview_Ques... <- apply_log(data = qoc_data$Health_Worker_Interview_Ques..., 
+qoc_data$Health_Worker_Interview_Ques... <- apply_log(data = qoc_data$Health_Worker_Interview_Ques...,
                                                       log=filter(correction_log_filtered, Tool %in% "QoC" & Tab_Name %in% "Health_Worker_Interview_Ques..."),
                                                       data_KEY = "KEY",
                                                       log_columns = c(question = "question",
@@ -176,7 +178,7 @@ for(sheet in names(qqc_data)){
   log_sub <- filter(correction_log_filtered, Tool %in% "QQC" & Tab_Name %in% sheet)
   if(nrow(log_sub)>0){
     # Apply log
-    qqc_data[[sheet]] <- apply_log(data = qqc_data[[sheet]], 
+    qqc_data[[sheet]] <- apply_log(data = qqc_data[[sheet]],
                                    log=filter(correction_log_filtered, Tool == "QQC" & Tab_Name == sheet),
                                    data_KEY = "KEY",
                                    log_columns = c(question = "question",
@@ -282,7 +284,7 @@ for(sheet in names(HF_data)){
 for(sheet in names(qqc_data)){
   # Compare
   correction_log_discrep <- rbind(
-    correction_log_discrep, 
+    correction_log_discrep,
     compare_dt(df1 = qqc_data_copy[[sheet]], df2 = qqc_data[[sheet]],
                unique_id_df1 = "KEY", unique_id_df2 = "KEY") %>%
       mutate(`Tool Type` = paste0("QQC_", sheet))

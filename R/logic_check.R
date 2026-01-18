@@ -5,12 +5,12 @@
 source("R/logic_checks/HF_verification.R") # Check Commented Sections
 # Note: some sections did not have data while adding these checks, might requrie review later
 
-## QoC - Interview with Health Workers -------------------------------------------------------------*
-source("R/logic_checks/QoC.R")
-
-## QQC ---------------------------------------------------------------------------------------------*
-source("R/logic_checks/QQC.R") 
-# Note: Add constraint checks
+# ## QoC - Interview with Health Workers -------------------------------------------------------------*
+# source("R/logic_checks/QoC.R")
+# 
+# ## QQC ---------------------------------------------------------------------------------------------*
+# source("R/logic_checks/QQC.R") 
+# # Note: Add constraint checks
 
 ## HMIS Service Assessment -------------------------------------------------------------------------*
 source("R/logic_checks/Service_assessment.R") # Needs work
@@ -89,7 +89,8 @@ missing_HFs <- ver_sample %>% #filter(Site_Visit_ID %in% "HER-BDS-HF2507-Q1-2023
       Sample_Type %notin% c("Replaced", "Replacement") ~ "One or more Health Facility related information is different across tools",
     Total_collected_tools == 0 ~ "Sampled HF Not visited yet!",
     is.na(SP_Name_based_on_sample) ~ "Site Visit not found in the sample!",
-    Total_collected_tools == 6 | (Missing_data %in% "QQC" & HF_Type_based_on_sample %notin% c("BHC", "CHC", "DH")) ~ "Complete (QQC not collected if HF not BHC/CHC/DH)!"
+    Total_collected_tools == 6 | (Missing_data %in% "QQC" & HF_Type_based_on_sample %notin% c("BHC", "CHC", "DH")) ~ "Complete (QQC not collected if HF not BHC/CHC/DH)!",
+    Sample_Type %in% c("Replaced") & !is.na(Collected_data) ~ "Data in Replaced Health Facility!",
     # "QQC only collected for BHC, CHC & DH"
   ),
   Missing_data=case_when(
@@ -166,8 +167,8 @@ if(any(duplicated(HF_data_approved$data$KEY)) |
 # Export list --------------------------------------------------------------------------------------
 logical_issues <- plyr::rbind.fill(
   hf_logical_issues %>% mutate(Tool="HF_data"),
-  qoc_logical_issues %>% mutate(Tool="QoC"),
-  QQC_logical_issues %>% mutate(Tool="QQC"),
+  # qoc_logical_issues %>% mutate(Tool="QoC"),
+  # QQC_logical_issues %>% mutate(Tool="QQC"),
   hmis_logical_issues %>% mutate(Tool="HMIS"),
   # sp_logical_issues %>% mutate(Tool="SP"),
   vignette_logical_issues %>% mutate(Tool="Vignette"),
@@ -178,8 +179,8 @@ logical_issues <- plyr::rbind.fill(
 # Repeat sheet mismatches
 repeatsheet_count_mismatch <- plyr::rbind.fill(
   HF_count_mismatch,
-  qoc_count_mismatch,
-  QQC_count_mismatch,
+  # qoc_count_mismatch,
+  # QQC_count_mismatch,
   hmis_count_mismatch
   # sp_count_mismatch
 )
@@ -187,8 +188,8 @@ repeatsheet_count_mismatch <- plyr::rbind.fill(
 # Potential Numeric Codes 
 numeric_issues_list <- plyr::rbind.fill(
   hf_other_num_issues,
-  qoc_other_num_issues,
-  qqc_other_num_issues,
+  # qoc_other_num_issues,
+  # qqc_other_num_issues,
   hmis_other_num_issues,
   # sp_count_mismatch,
   vign_other_num_issues,
@@ -211,13 +212,14 @@ missing_data_list <- list(
   HF_Verification=hf_interview_type,
   HF_Ver_staff=staff_inconsistency, # Check where to add
   # QoC_Staff_Interview=qoc_staff_interview, # QA: Not needed
-  QoC_duplicate_staff=qoc_duplicate_staff,
-  QQC=qqc_interview_type,
+  # QoC_duplicate_staff=qoc_duplicate_staff,
+  # QQC=qqc_interview_type,
   HMIS=hmis_service_type,
   HMIS_Patient_Dup=hmis_duplicate_patients,
   Patient_Ver_Dup=duplicate_patients_ver,
   Patient_missing=patient_cross_check,
-  Patient_per_Service=patient_per_service
+  Patient_per_Service=patient_per_service,
+  Vignette_interviews=vign_interview_type
 )
 
 
