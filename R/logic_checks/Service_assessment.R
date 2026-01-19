@@ -89,82 +89,92 @@ hmis_logical_issues <- plyr::rbind.fill(
     filter((rep_service_hf_register_count < 1 & Register_Available %notin% c("No", NA)) | (rep_service_hf_register_count > 0 & Register_Available %notin% "Yes")) %>% 
     mutate(issue = "The question response and repeat sheet count does not match!",
            Questions = "Register_Available - rep_service_hf_register_count",
-           Values = paste0(Register_Available, " - ", rep_service_hf_register_count)) %>%
-    select(Questions, Values, issue, KEY=KEY_Unique),
+           Values = paste0(Register_Available, " - ", rep_service_hf_register_count),
+           Tool="HMIS_rep_service") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   
   hmis_data_approved$rep_service %>% 
     filter((Miar_Hmir_Hmis_Photos_For_M1_M2_M3_Count < 1 & Hmis_Miar_Hmir_For_Available %notin% c("No", NA)) | (Miar_Hmir_Hmis_Photos_For_M1_M2_M3_Count > 0 & Hmis_Miar_Hmir_For_Available %notin% "Yes")) %>% 
     mutate(issue = "The question response and repeat sheet count does not match!",
            Questions = "Hmis_Miar_Hmir_For_Available - Miar_Hmir_Hmis_Photos_For_M1_M2_M3_Count",
-           Values = paste0(Hmis_Miar_Hmir_For_Available, " - ", Miar_Hmir_Hmis_Photos_For_M1_M2_M3_Count)) %>%
-    select(Questions, Values, issue, KEY=KEY_Unique),
+           Values = paste0(Hmis_Miar_Hmir_For_Available, " - ", Miar_Hmir_Hmis_Photos_For_M1_M2_M3_Count),
+           Tool="HMIS_rep_service") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   
   hmis_data_approved$rep_service %>% 
     filter((Health_Register_Photos_For_M1_M2_M3_Count < 1 & Register_Available %notin% c("No", NA)) | (Health_Register_Photos_For_M1_M2_M3_Count > 0 & Register_Available %notin% "Yes")) %>% 
     mutate(issue = "The question response and repeat sheet count does not match!",
            Questions = "Register_Available - Health_Register_Photos_For_M1_M2_M3_Count",
-           Values = paste0(Register_Available, " - ", Health_Register_Photos_For_M1_M2_M3_Count)) %>%
-    select(Questions, Values, issue, KEY=KEY_Unique),
+           Values = paste0(Register_Available, " - ", Health_Register_Photos_For_M1_M2_M3_Count),
+           Tool="HMIS_rep_service") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   
   hmis_data_approved$rep_service %>% 
     filter((str_count(Service_Type, ";")+1)!=rep_service_hf_register_count) %>% 
     mutate(issue = "The question response and repeat sheet count does not match!",
            Questions = "Service_Type - rep_service_hf_register_count",
-           Values = paste0(Service_Type, " - ", rep_service_hf_register_count)) %>%
-    select(Questions, Values, issue, KEY),
+           Values = paste0(Service_Type, " - ", rep_service_hf_register_count),
+           Tool="HMIS_rep_service") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   
   hmis_data_approved$rep_service %>% 
     filter((as.numeric(Number_Of_Patients_Based_On_The_Specified_Target) %/% as.numeric(Number_Of_Samples))!=as.numeric(interval_sampling)) %>% 
     mutate(issue = "Interval calculation does not match the division of the two values, plz double-check!",
            Questions = "Number_Of_Patients_Based_On_The_Specified_Target - Number_Of_Samples - interval_sampling",
-           Values = paste0(Number_Of_Patients_Based_On_The_Specified_Target, " - ", Number_Of_Samples, " - ", interval_sampling)) %>%
-    select(Questions, Values, issue, KEY),
+           Values = paste0(Number_Of_Patients_Based_On_The_Specified_Target, " - ", Number_Of_Samples, " - ", interval_sampling),
+           Tool="HMIS_rep_service") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   
   hmis_data_approved$rep_service %>% 
     filter(Number_Of_Samples!=Patient_Sampling_Verification_count) %>% 
     mutate(issue = "Inconsistent values!",
            Questions = "Number_Of_Samples - Patient_Sampling_Verification_count",
-           Values = paste0(Number_Of_Samples, " - ", Patient_Sampling_Verification_count)) %>%
-    select(Questions, Values, issue, KEY),
+           Values = paste0(Number_Of_Samples, " - ", Patient_Sampling_Verification_count),
+           Tool="HMIS_rep_service") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   
   #### rep_service_hf_register
   hmis_data_approved$rep_service_hf_register %>% 
     filter(Total_Verified_Visits!=(as.numeric(Number_Visits_In_The_Health_Register_Month1)+as.numeric(Number_Visits_In_The_Health_Register_Month2)+as.numeric(Number_Visits_In_The_Health_Register_Month3))) %>% 
     mutate(issue = "Total doesn't match the sum of parts!",
            Questions = "Total_Verified_Visits - Number_Visits_In_The_Health_Register_Month1 -	Number_Visits_In_The_Health_Register_Month2 -	Number_Visits_In_The_Health_Register_Month3",
-           Values = paste0(Total_Verified_Visits, " - ", Number_Visits_In_The_Health_Register_Month1, " - ", Number_Visits_In_The_Health_Register_Month2, " - ", Number_Visits_In_The_Health_Register_Month3)) %>%
-    select(Questions, Values, issue, KEY=KEY_Unique),
-  
+           Values = paste0(Total_Verified_Visits, " - ", Number_Visits_In_The_Health_Register_Month1, " - ", Number_Visits_In_The_Health_Register_Month2, " - ", Number_Visits_In_The_Health_Register_Month3),
+           Tool="HMIS_rep_service_hf_register") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   
   #### Patient_Sampling_Verification
   hmis_data_approved$Patient_Sampling_Verification %>%
-    filter((as.numeric(Patient_Age_Years)*12)+as.numeric(Patient_Age_Months) != as.numeric(Total_Months)) %>%
+    filter(((as.numeric(Patient_Age_Years)*12)+as.numeric(Patient_Age_Months) != as.numeric(Total_Months)) & Total_Months %notin% 8888) %>%
     mutate(issue="Age total does not match years+months!",
            Questions = "Patient_Age_Years - Patient_Age_Months - Total_Months",
-           Values = paste0(Patient_Age_Years, " - ", Patient_Age_Months, " - ", Total_Months)) %>%
-    select(Questions, Values, issue, KEY),
+           Values = paste0(Patient_Age_Years, " - ", Patient_Age_Months, " - ", Total_Months),
+           Tool="HMIS_Patient_Sampling") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   
   ## Service Type vs Patient Age checks
   hmis_data_approved$Patient_Sampling_Verification %>%
     filter(Type_of_service_general %in% "Under 5 children morbidities" & as.numeric(Total_Months) >= 66) %>% # 60 + 6 months since reporting period
     mutate(issue="Visited HF for under 5 morbities but the patient age is more than 5 years old",
            Questions = "Type_of_service_general - Total_Months - Age_in_Years",
-           Values = paste0(Type_of_service_general, " - ", Total_Months, " - ", as.numeric(Total_Months)/12)) %>%
-    select(Questions, Values, issue, KEY),
+           Values = paste0(Type_of_service_general, " - ", Total_Months, " - ", as.numeric(Total_Months)/12),
+           Tool="HMIS_Patient_Sampling") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
 
   hmis_data_approved$Patient_Sampling_Verification %>%
     filter(Type_of_service_general %in% "Pentavalent vaccine (3rd dose)" & as.numeric(Total_Months) >= 10) %>% # 4 + 6 months since reporting period
     mutate(issue="The Pentavalent vaccine is only administered to children of no more than 4 months old",
            Questions = "Type_of_service_general - Total_Months - Age_in_Years",
-           Values = paste0(Type_of_service_general, " - ", Total_Months, " - ", as.numeric(Total_Months)/12)) %>%
-    select(Questions, Values, issue, KEY),
+           Values = paste0(Type_of_service_general, " - ", Total_Months, " - ", as.numeric(Total_Months)/12),
+           Tool="HMIS_Patient_Sampling") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   
   hmis_data_approved$Patient_Sampling_Verification %>%
     filter(Type_of_service_general %in% "Growth monitoring of under 2 years" & as.numeric(Total_Months) >= 30) %>% # 24 + 6 months since reporting period
     mutate(issue="Visited HF for children below 2 years but age is reported above 2 years",
            Questions = "Type_of_service_general - Total_Months - Age_in_Years",
-           Values = paste0(Type_of_service_general, " - ", Total_Months, " - ", as.numeric(Total_Months)/12)) %>%
-    select(Questions, Values, issue, KEY),
+           Values = paste0(Type_of_service_general, " - ", Total_Months, " - ", as.numeric(Total_Months)/12),
+           Tool="HMIS_Patient_Sampling") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   
   hmis_data_approved$Patient_Sampling_Verification %>%
     filter(Type_of_service_general %in% c("Ante-natal care (ANC)",
@@ -174,8 +184,9 @@ hmis_logical_issues <- plyr::rbind.fill(
                                           "C-section") & as.numeric(Total_Months) < 180) %>% 
     mutate(issue="Visited HF for pregnancy related services but the patient age is too small, plz double-check",
            Questions = "Type_of_service_general - Total_Months - Age_in_Years",
-           Values = paste0(Type_of_service_general, " - ", Total_Months, " - ", as.numeric(Total_Months)/12)) %>%
-    select(Questions, Values, issue, KEY),
+           Values = paste0(Type_of_service_general, " - ", Total_Months, " - ", as.numeric(Total_Months)/12),
+           Tool="HMIS_Patient_Sampling") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   
   # Pregnancy related services but patient is not Female
   hmis_data_approved$Patient_Sampling_Verification %>%
@@ -186,24 +197,27 @@ hmis_logical_issues <- plyr::rbind.fill(
                                           "C-section") & Patient_Gender %notin% "Female") %>% 
     mutate(issue="Pregnancy related services but patient is not Female",
            Questions = "Type_of_service_general - Patient_Gender",
-           Values = paste0(Type_of_service_general, " - ", Patient_Gender)) %>%
-    select(Questions, Values, issue, KEY),
+           Values = paste0(Type_of_service_general, " - ", Patient_Gender),
+           Tool="HMIS_Patient_Sampling") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
 
   # Outlier age
   hmis_data_approved$Patient_Sampling_Verification %>%
-    filter(as.numeric(Total_Months) > 1176) %>% 
+    filter(as.numeric(Total_Months) > 1176 & Total_Months %notin% 8888) %>% 
     mutate(issue="Outlier age, plz double-check",
            Questions = "Total_Months - Age_in_Years",
-           Values = paste0(Total_Months, " - ", as.numeric(Total_Months)/12)) %>%
-    select(Questions, Values, issue, KEY),
+           Values = paste0(Total_Months, " - ", as.numeric(Total_Months)/12),
+           Tool="HMIS_Patient_Sampling") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   # The Male Patient has Husband name
   hmis_data_approved$Patient_Sampling_Verification %>%
     filter(Patient_Gender %in% "Male" & !is.na(Husband_Name)) %>%
     mutate(issue = "The Male Patient has 'Husband name'",
            Questions = "Patient_Gender - Husband_Name",
-           Values = paste0(Patient_Gender, " - ", Husband_Name)) %>%
-    select(Questions, Values, issue, KEY)
-)
+           Values = paste0(Patient_Gender, " - ", Husband_Name),
+           Tool="HMIS_Patient_Sampling") %>%
+    select(Questions, Values, issue, KEY=KEY_Unique, Tool)
+)  %>% mutate(Tool=ifelse(is.na(Tool), "HMIS", Tool))
 
 #### Flag Numeric values in Other/Numeric Questions
 hmis_other_num_issues <- c()

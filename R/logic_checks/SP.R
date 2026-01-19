@@ -1,26 +1,27 @@
 sp_logical_issues <- rbind(
   # 
   sp_data_approved$Personnel %>% 
-    filter(Total_Working_Days > 31) %>% 
+    filter(as.numeric(Total_Working_Days) > 31) %>% 
     mutate(issue = "Incorrect working days",
            Questions = "Total_Working_Days",
            Values = Total_Working_Days) %>% 
     select(Questions, Values, issue, KEY),
   # 
   sp_data_approved$Personnel %>% 
-    filter(Missing_Days > Total_Working_Days) %>% 
+    filter(as.numeric(Missing_Days) > as.numeric(Total_Working_Days)) %>% 
     mutate(issue = "Missing days shouldn't be more than working days",
            Questions = "Missing_Days - Total_Working_Days",
            Values = paste0(Missing_Days, " - ", Total_Working_Days)) %>% 
     select(Questions, Values, issue, KEY),
   #
   sp_data_approved$Absent_Days %>% 
-    filter(Absent_Days_Month1 > 31 | Absent_Days_Month2 > 31 | Absent_Days_Month3 > 31) %>% 
+    filter(as.numeric(Absent_Days_Month1) > 30 | as.numeric(Absent_Days_Month2) > 31 | as.numeric(Absent_Days_Month3) > 30) %>% 
     mutate(issue = "Absentees shouldn't be more than 31",
            Questions = "Absent_Days_Month1 - Absent_Days_Month2 - Absent_Days_Month3",
            Values = paste0(Absent_Days_Month1, " - ", Absent_Days_Month2, " - ", Absent_Days_Month3)) %>% 
     select(Questions, Values, issue, KEY)
 )
+
 # Chech for repeat sheet mismatches
 sp_count_mismatch <- rbind(
   # Personnel

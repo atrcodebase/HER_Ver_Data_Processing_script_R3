@@ -270,26 +270,26 @@ correction_log_discrep <- rbind(
              unique_id_df1 = "KEY", unique_id_df2 = "KEY") %>%
     mutate(`Tool Type` = "Patient")
 )
-## HF Data Verification 
-for(sheet in names(HF_data)){
-  # Compare
-  correction_log_discrep <- rbind(
-    correction_log_discrep, 
-    compare_dt(df1 = HF_data_copy[[sheet]], df2 = HF_data[[sheet]],
-               unique_id_df1 = "KEY", unique_id_df2 = "KEY") %>%
-      mutate(`Tool Type` = paste0("HF_", sheet))
-  )
-}
-## QQC
-for(sheet in names(qqc_data)){
-  # Compare
-  correction_log_discrep <- rbind(
-    correction_log_discrep,
-    compare_dt(df1 = qqc_data_copy[[sheet]], df2 = qqc_data[[sheet]],
-               unique_id_df1 = "KEY", unique_id_df2 = "KEY") %>%
-      mutate(`Tool Type` = paste0("QQC_", sheet))
-  )
-}
+# ## HF Data Verification 
+# for(sheet in names(HF_data)){
+#   # Compare
+#   correction_log_discrep <- rbind(
+#     correction_log_discrep, 
+#     compare_dt(df1 = HF_data_copy[[sheet]], df2 = HF_data[[sheet]],
+#                unique_id_df1 = "KEY", unique_id_df2 = "KEY") %>%
+#       mutate(`Tool Type` = paste0("HF_", sheet))
+#   )
+# }
+# ## QQC
+# for(sheet in names(qqc_data)){
+#   # Compare
+#   correction_log_discrep <- rbind(
+#     correction_log_discrep,
+#     compare_dt(df1 = qqc_data_copy[[sheet]], df2 = qqc_data[[sheet]],
+#                unique_id_df1 = "KEY", unique_id_df2 = "KEY") %>%
+#       mutate(`Tool Type` = paste0("QQC_", sheet))
+#   )
+# }
 ## HMIS Service assessment
 for(sheet in names(hmis_data)){
   # Compare

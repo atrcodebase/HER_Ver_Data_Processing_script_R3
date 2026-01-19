@@ -42,26 +42,26 @@ HF_data_sub <- HF_data$data %>%
          HF_Code_based_on_sample, HF_Name_based_on_Sample, SP_Name_based_on_sample, HF_Type, KEY)
 
 # Apply changes on all sheets
-for(sheet in names(HF_data)){
-  # Relabel numeric cols
-  HF_data[[sheet]] <- HF_data[[sheet]] %>%
-    mutate(across(any_of(HF_numeric_cols), as.character)) %>% 
-    mutate(across(any_of(HF_numeric_cols), relabel_98_99))
-  
-  # Update links
-  key_col <- "KEY" # ifelse(sheet %in% "data", "KEY", "PARENT_KEY")
-  HF_data[[sheet]] <- update_media_links(data=HF_data[[sheet]], 
-                                       tool_path = hf_tool_path,  
-                                       download_link=download_link,
-                                       key_col) # No need if data is downloaded from SCTO website
-  
-  # Join main Sheet cols
-  if(sheet!="data"){
-    HF_data[[sheet]] <- HF_data[[sheet]] %>% 
-      left_join(HF_data_sub, by=c("KEY")) %>% # New key
-      relocate(Site_Visit_ID:HF_Type, .before = 1)
-  }
-}
+# for(sheet in names(HF_data)){
+#   # Relabel numeric cols
+#   HF_data[[sheet]] <- HF_data[[sheet]] %>%
+#     mutate(across(any_of(HF_numeric_cols), as.character)) %>% 
+#     mutate(across(any_of(HF_numeric_cols), relabel_98_99))
+#   
+#   # Update links
+#   key_col <- "KEY" # ifelse(sheet %in% "data", "KEY", "PARENT_KEY")
+#   HF_data[[sheet]] <- update_media_links(data=HF_data[[sheet]], 
+#                                        tool_path = hf_tool_path,  
+#                                        download_link=download_link,
+#                                        key_col) # No need if data is downloaded from SCTO website
+#   
+#   # Join main Sheet cols
+#   if(sheet!="data"){
+#     HF_data[[sheet]] <- HF_data[[sheet]] %>% 
+#       left_join(HF_data_sub, by=c("KEY")) %>% # New key
+#       relocate(Site_Visit_ID:HF_Type, .before = 1)
+#   }
+# }
 
 
 # Join Extra Columns
@@ -132,15 +132,15 @@ qqc_data$data <- qqc_data$data %>%
     TRUE ~ HF_Type
   ))
 
-# Update URL links in all sheets
-for(sheet in names(qqc_data)){
-  # Update links
-  key_col <- ifelse(sheet %in% "data", "KEY", "PARENT_KEY")
-  qqc_data[[sheet]] <- update_media_links(data=qqc_data[[sheet]], 
-                                         tool_path = qqc_tool_path,  
-                                         download_link=download_link,
-                                         key_col) # No need if data is downloaded from SCTO website
-}
+# # Update URL links in all sheets
+# for(sheet in names(qqc_data)){
+#   # Update links
+#   key_col <- ifelse(sheet %in% "data", "KEY", "PARENT_KEY")
+#   qqc_data[[sheet]] <- update_media_links(data=qqc_data[[sheet]], 
+#                                          tool_path = qqc_tool_path,  
+#                                          download_link=download_link,
+#                                          key_col) # No need if data is downloaded from SCTO website
+# }
 
 ## HMIS Service assessment -------------------------------------------------------------------------
 hmis_data$data <- hmis_data$data %>%

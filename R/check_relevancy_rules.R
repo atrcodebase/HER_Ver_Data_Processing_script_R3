@@ -8,65 +8,65 @@ sp_tool_relevancy <- read_excel("input/tool_relevancy_rules/SP_relevancy_rules.x
 vign_tool_relevancy <- read_excel("input/tool_relevancy_rules/Vignette_relevancy_rules.xlsx")
 patient_tool_relevancy <- read_excel("input/tool_relevancy_rules/Patient_verification_relevancy_rules.xlsx")
 
-### HF Level Data Verification ---------------------------------------------------------------------
-HF_tool_relevancy <- HF_tool_relevancy %>%
-  mutate(sheet=case_when(
-    sheet %in% "Drug_Availability_Reporting_Period" ~ "Drug_Availability_Reporting_...",
-    sheet %in% "Medicine_Stored_Systematic_Repeat" ~ "Medicine_Stored_Systematic_R...",
-    sheet %in% "Medicine_Stored_First_Expired_First_Repeat" ~ "Medicine_Stored_First_Expire...",
-    TRUE ~ sheet
-  ))
-HF_data_sub <- HF_data$data %>%
-  select(Consent, Interview_Type_SV, HF_Type, n_available_drug, qa_status,
-         Can_Speak_With_Two_Members, Control_Temperature, Windows_Can_Open,
-         Sunlight_cannot_enter, Area_Free_Moisture, Old_Storage_available, Filled_Tempreature_Chart,
-         Medicine_Not_Stored, Medicine_Stored_Systematic, Medicine_Stored_First_Expired_First,
-        Evidence_Of_Pests, Temperature_Chart, eq_rep, Register_Lab_Department_Available,
-        Is_There_A_Specific_Room_For_X_Ray,  KEY)
-# Join the subset with all sheets (new variable)
-HF_data_joined <- lapply(HF_data[-1], left_join, HF_data_sub, by = "KEY")
-
-# Join specific columns
-HF_data_joined$Drug_Out_Of_Stock <- HF_data_joined$Drug_Out_Of_Stock %>%
-  left_join(
-    HF_data_joined$Drug_Availability_Reporting_... %>% select(How_Many_Times_Out_Of_Stock_RP, Was_Drug_Out_Of_Stock_RP, KEY_Unique),
-    by = c("PARENT_KEY" = "KEY_Unique")
-  )
-HF_data_joined$Consumable_Out_Of_Stock_RP <- HF_data_joined$Consumable_Out_Of_Stock_RP %>%
-  left_join(
-    HF_data_joined$List_Of_Consumables_RP %>% select(Was_Consumable_Out_Of_Stock_RP, Times_Were_Consumable_Out_Of_Stock_RP, KEY_Unique),
-    by = c("PARENT_KEY" = "KEY_Unique")
-  )
-HF_data_joined$Test_Component_Details <- HF_data_joined$Test_Component_Details %>%
-  left_join(
-    HF_data_joined$Lab %>% select(was_one_test_made, KEY_Unique),
-    by = c("PARENT_KEY" = "KEY_Unique")
-  )
-# Manually added in relevancy rule
-HF_data_joined$data <- HF_data$data %>%
-  left_join(
-    HF_data_joined$Personnel %>%
-      mutate(Is_Attendance=paste0(Date_Attendance, "_", Is_Attendance),
-             Mechanism_For_Attendance=paste0(Date_Attendance, "_", Mechanism_For_Attendance)) %>%
-      group_by(PARENT_KEY) %>%
-      reframe(Is_Attendance=paste0(Is_Attendance, collapse = ";"),
-              Mechanism_For_Attendance=paste0(Mechanism_For_Attendance, collapse = ";")),
-    by = c("KEY" = "PARENT_KEY")
-  )
-
-# Check Relevancy
-HF_relevancy_issues <- check_relevancy_rules(HF_data_joined$data, HF_tool_relevancy, sheet_name="data")
-for(sheet in names(HF_data)[names(HF_data) != "data"]){
-  # Check
-  if(nrow(HF_data_joined[[sheet]])!=0){ # Temp condition
-    HF_relevancy_issues <- rbind(
-      HF_relevancy_issues,
-      check_relevancy_rules(HF_data_joined[[sheet]], HF_tool_relevancy, sheet_name=sheet, KEY="KEY_Unique")
-    )
-  }
-}
-
-
+# ### HF Level Data Verification ---------------------------------------------------------------------
+# HF_tool_relevancy <- HF_tool_relevancy %>%
+#   mutate(sheet=case_when(
+#     sheet %in% "Drug_Availability_Reporting_Period" ~ "Drug_Availability_Reporting_...",
+#     sheet %in% "Medicine_Stored_Systematic_Repeat" ~ "Medicine_Stored_Systematic_R...",
+#     sheet %in% "Medicine_Stored_First_Expired_First_Repeat" ~ "Medicine_Stored_First_Expire...",
+#     TRUE ~ sheet
+#   ))
+# HF_data_sub <- HF_data$data %>%
+#   select(Consent, Interview_Type_SV, HF_Type, n_available_drug, qa_status,
+#          Can_Speak_With_Two_Members, Control_Temperature, Windows_Can_Open,
+#          Sunlight_cannot_enter, Area_Free_Moisture, Old_Storage_available, Filled_Tempreature_Chart,
+#          Medicine_Not_Stored, Medicine_Stored_Systematic, Medicine_Stored_First_Expired_First,
+#         Evidence_Of_Pests, Temperature_Chart, eq_rep, Register_Lab_Department_Available,
+#         Is_There_A_Specific_Room_For_X_Ray,  KEY)
+# # Join the subset with all sheets (new variable)
+# HF_data_joined <- lapply(HF_data[-1], left_join, HF_data_sub, by = "KEY")
+# 
+# # Join specific columns
+# HF_data_joined$Drug_Out_Of_Stock <- HF_data_joined$Drug_Out_Of_Stock %>%
+#   left_join(
+#     HF_data_joined$Drug_Availability_Reporting_... %>% select(How_Many_Times_Out_Of_Stock_RP, Was_Drug_Out_Of_Stock_RP, KEY_Unique),
+#     by = c("PARENT_KEY" = "KEY_Unique")
+#   )
+# HF_data_joined$Consumable_Out_Of_Stock_RP <- HF_data_joined$Consumable_Out_Of_Stock_RP %>%
+#   left_join(
+#     HF_data_joined$List_Of_Consumables_RP %>% select(Was_Consumable_Out_Of_Stock_RP, Times_Were_Consumable_Out_Of_Stock_RP, KEY_Unique),
+#     by = c("PARENT_KEY" = "KEY_Unique")
+#   )
+# HF_data_joined$Test_Component_Details <- HF_data_joined$Test_Component_Details %>%
+#   left_join(
+#     HF_data_joined$Lab %>% select(was_one_test_made, KEY_Unique),
+#     by = c("PARENT_KEY" = "KEY_Unique")
+#   )
+# # Manually added in relevancy rule
+# HF_data_joined$data <- HF_data$data %>%
+#   left_join(
+#     HF_data_joined$Personnel %>%
+#       mutate(Is_Attendance=paste0(Date_Attendance, "_", Is_Attendance),
+#              Mechanism_For_Attendance=paste0(Date_Attendance, "_", Mechanism_For_Attendance)) %>%
+#       group_by(PARENT_KEY) %>%
+#       reframe(Is_Attendance=paste0(Is_Attendance, collapse = ";"),
+#               Mechanism_For_Attendance=paste0(Mechanism_For_Attendance, collapse = ";")),
+#     by = c("KEY" = "PARENT_KEY")
+#   )
+# 
+# # Check Relevancy
+# HF_relevancy_issues <- check_relevancy_rules(HF_data_joined$data, HF_tool_relevancy, sheet_name="data")
+# for(sheet in names(HF_data)[names(HF_data) != "data"]){
+#   # Check
+#   if(nrow(HF_data_joined[[sheet]])!=0){ # Temp condition
+#     HF_relevancy_issues <- rbind(
+#       HF_relevancy_issues,
+#       check_relevancy_rules(HF_data_joined[[sheet]], HF_tool_relevancy, sheet_name=sheet, KEY="KEY_Unique")
+#     )
+#   }
+# }
+# 
+# 
 # ### QoC - Interview with Health Workers ------------------------------------------------------------
 # qoc_tool_relevancy <- qoc_tool_relevancy %>% 
 #   mutate(sheet=case_when(
@@ -166,19 +166,19 @@ patient_relevancy_issues <- check_relevancy_rules(patient_data, patient_tool_rel
 
 # Update Select_multiple series columns ------------------------------------------------------------
 ## HF Level Data Verification
-HF_SM_issues <- c()
-for(sheet in names(HF_data)){
-  HF_data[[sheet]] <- HF_data[[sheet]] %>%
-    update_series_cols(tool_path = hf_tool_path,
-                       question_separator="_")
-  # Check if updated correctly
-  HF_SM_issues <- rbind(
-    HF_SM_issues,
-    check_select_multiple(data=HF_data[[sheet]],
-                          tool_path = hf_tool_path,
-                          question_separator="_")
-  )
-}
+# HF_SM_issues <- c()
+# for(sheet in names(HF_data)){
+#   HF_data[[sheet]] <- HF_data[[sheet]] %>%
+#     update_series_cols(tool_path = hf_tool_path,
+#                        question_separator="_")
+#   # Check if updated correctly
+#   HF_SM_issues <- rbind(
+#     HF_SM_issues,
+#     check_select_multiple(data=HF_data[[sheet]],
+#                           tool_path = hf_tool_path,
+#                           question_separator="_")
+#   )
+# }
 
 # ## QoC
 # qoc_data$data <- qoc_data$data %>% update_series_cols(tool_path = qoc_tool_path, question_separator="_")
@@ -244,7 +244,7 @@ patient_SM_issues <- check_select_multiple(data=patient_data, tool_path = patien
 ## Export List -------------------------------------------------------------------------------------
 # Relevancy
 relevancy_issues <- plyr::rbind.fill(
-  HF_relevancy_issues %>% mutate(Tool="HF_Verification"),
+  # HF_relevancy_issues %>% mutate(Tool="HF_Verification"),
   # qoc_relevancy_issues %>% mutate(Tool="QoC"),
   # qqc_relevancy_issues %>% mutate(Tool="QQC"),
   hmis_relevancy_issues %>% mutate(Tool="HMIS"),
@@ -262,7 +262,7 @@ relevancy_issues <- relevancy_issues %>%
 
 ## Select Multiple issues
 SM_issues <- plyr::rbind.fill(
-  HF_SM_issues %>% mutate(Tool="HF_Verification"),
+  # HF_SM_issues %>% mutate(Tool="HF_Verification"),
   # qoc_SM_issues %>% mutate(Tool="QoC"),
   # qqc_SM_issues %>% mutate(Tool="QQC"),
   HMIS_SM_issues %>% mutate(Tool="HMIS"),

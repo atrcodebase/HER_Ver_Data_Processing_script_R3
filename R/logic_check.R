@@ -2,7 +2,7 @@
 # Completed Logic checks: HF_Verification, QoC, QQC, HMIS, Patient, Vignette
 
 ### HF Data Verification ---------------------------------------------------------------------------
-source("R/logic_checks/HF_verification.R") # Check Commented Sections
+# source("R/logic_checks/HF_verification.R") # Check Commented Sections
 # Note: some sections did not have data while adding these checks, might requrie review later
 
 # ## QoC - Interview with Health Workers -------------------------------------------------------------*
@@ -18,10 +18,10 @@ source("R/logic_checks/Service_assessment.R") # Needs work
 # Patient_Date_of_Visit requires manual review
 
 ### SP Personnel -----------------------------------------------------------------------------------*
-# source("R/logic_checks/SP.R") # No data yet
+source("R/logic_checks/SP.R") # No data yet
 
 ## Vignette ----------------------------------------------------------------------------------------
-source("R/logic_checks/Vignette.R")
+# source("R/logic_checks/Vignette.R")
 
 ## Patient Verification ----------------------------------------------------------------------------*
 source("R/logic_checks/Patient_verification.R")
@@ -166,33 +166,33 @@ if(any(duplicated(HF_data_approved$data$KEY)) |
 
 # Export list --------------------------------------------------------------------------------------
 logical_issues <- plyr::rbind.fill(
-  hf_logical_issues %>% mutate(Tool="HF_data"),
+  # hf_logical_issues %>% mutate(Tool="HF_data"),
   # qoc_logical_issues %>% mutate(Tool="QoC"),
   # QQC_logical_issues %>% mutate(Tool="QQC"),
-  hmis_logical_issues %>% mutate(Tool="HMIS"),
-  # sp_logical_issues %>% mutate(Tool="SP"),
-  vignette_logical_issues %>% mutate(Tool="Vignette"),
+  hmis_logical_issues, # Tool name added in check
+  sp_logical_issues %>% mutate(Tool="SP"),
+  # vignette_logical_issues %>% mutate(Tool="Vignette"),
   patient_logical_issues %>% mutate(Tool="Patient_Verification")
   # 
 ) 
 
 # Repeat sheet mismatches
 repeatsheet_count_mismatch <- plyr::rbind.fill(
-  HF_count_mismatch,
+  # HF_count_mismatch,
   # qoc_count_mismatch,
   # QQC_count_mismatch,
-  hmis_count_mismatch
-  # sp_count_mismatch
+  hmis_count_mismatch,
+  sp_count_mismatch
 )
 
 # Potential Numeric Codes 
 numeric_issues_list <- plyr::rbind.fill(
-  hf_other_num_issues,
+  # hf_other_num_issues,
   # qoc_other_num_issues,
   # qqc_other_num_issues,
   hmis_other_num_issues,
   # sp_count_mismatch,
-  vign_other_num_issues,
+  # vign_other_num_issues,
   patient_other_num_issues
 )
 
@@ -208,9 +208,9 @@ logical_issues_list <- list(
 
 ## Missing Data List
 missing_data_list <- list(
-  HF_level=missing_HFs,
-  HF_Verification=hf_interview_type,
-  HF_Ver_staff=staff_inconsistency, # Check where to add
+  # HF_level=missing_HFs,
+  # HF_Verification=hf_interview_type,
+  # HF_Ver_staff=staff_inconsistency, # Check where to add
   # QoC_Staff_Interview=qoc_staff_interview, # QA: Not needed
   # QoC_duplicate_staff=qoc_duplicate_staff,
   # QQC=qqc_interview_type,
@@ -218,8 +218,8 @@ missing_data_list <- list(
   HMIS_Patient_Dup=hmis_duplicate_patients,
   Patient_Ver_Dup=duplicate_patients_ver,
   Patient_missing=patient_cross_check,
-  Patient_per_Service=patient_per_service,
-  Vignette_interviews=vign_interview_type
+  Patient_per_Service=patient_per_service
+  # Vignette_interviews=vign_interview_type
 )
 
 

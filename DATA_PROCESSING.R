@@ -128,7 +128,6 @@ if(nrow(translation_log_discrep) !=0){
 ## Recode ------------------------------------------------------------------------------------------
 # file.edit("R/recode.R")
 source("R/recode.R") # Note: Don't relabel numerics in analysis data
-# source("R/recode_analysis.R")
 
 # produce qa-backlog -------------------------------------------------------------------------------
 # Check this part later
@@ -221,9 +220,9 @@ log_issues <- list(Correction=correction_log_issues, Translation=translation_log
 check_path("output/cleaned_data")
 archive_datasets("output/cleaned_data") # Move previous datasets to Archive
 ## export cleaned datasets
-openxlsx::write.xlsx(HF_data, paste0("output/cleaned_data/HER_HF_Level_Data_Verification_R3_cleaned_", lubridate::today(), ".xlsx")) # writexl::write_xlsx misses up the dates
-openxlsx::write.xlsx(qoc_data, paste0("output/cleaned_data/HER_QoC_Interview_with_Health_Workers_R3_cleaned_", lubridate::today(), ".xlsx")) # writexl::write_xlsx misses up the dates
-openxlsx::write.xlsx(qqc_data, paste0("output/cleaned_data/HER_QQC_R3_cleaned_", lubridate::today(), ".xlsx")) # writexl::write_xlsx misses up the dates
+# openxlsx::write.xlsx(HF_data, paste0("output/cleaned_data/HER_HF_Level_Data_Verification_R3_cleaned_", lubridate::today(), ".xlsx")) # writexl::write_xlsx misses up the dates
+# openxlsx::write.xlsx(qoc_data, paste0("output/cleaned_data/HER_QoC_Interview_with_Health_Workers_R3_cleaned_", lubridate::today(), ".xlsx")) # writexl::write_xlsx misses up the dates
+# openxlsx::write.xlsx(qqc_data, paste0("output/cleaned_data/HER_QQC_R3_cleaned_", lubridate::today(), ".xlsx")) # writexl::write_xlsx misses up the dates
 openxlsx::write.xlsx(hmis_data, paste0("output/cleaned_data/HER_Service_Assessment_Sampling_Verification_R3_cleaned_", lubridate::today(), ".xlsx")) # writexl::write_xlsx misses up the dates
 openxlsx::write.xlsx(sp_data, paste0("output/cleaned_data/HER_SP_Personnel_Attendance_Check_R3_cleaned_", lubridate::today(), ".xlsx")) # writexl::write_xlsx misses up the dates
 openxlsx::write.xlsx(vignette_data, paste0("output/cleaned_data/HER_Vignette_R3_cleaned_", lubridate::today(), ".xlsx")) # writexl::write_xlsx misses up the dates
@@ -233,9 +232,9 @@ openxlsx::write.xlsx(patient_data, paste0("output/cleaned_data/HER_Patient_Verif
 check_path("output/client_data")
 archive_datasets("output/client_data") # Move previous datasets to Archive
 # header_color <- "#91CBD9"
-export_datasets(HF_data_approved, paste0("output/client_data/HER_Ver_R3_HF_Level_Data_Verification_", lubridate::today(), ".xlsx")) # cleaned_approved
-export_datasets(qoc_data_approved, paste0("output/client_data/HER_Ver_R3_QoC_Interview_", lubridate::today(), ".xlsx"))
-export_datasets(qqc_data_approved, paste0("output/client_data/HER_Ver_R3_QQC_", lubridate::today(), ".xlsx"))
+# export_datasets(HF_data_approved, paste0("output/client_data/HER_Ver_R3_HF_Level_Data_Verification_", lubridate::today(), ".xlsx")) # cleaned_approved
+# export_datasets(qoc_data_approved, paste0("output/client_data/HER_Ver_R3_QoC_Interview_", lubridate::today(), ".xlsx"))
+# export_datasets(qqc_data_approved, paste0("output/client_data/HER_Ver_R3_QQC_", lubridate::today(), ".xlsx"))
 export_datasets(hmis_data_approved, paste0("output/client_data/HER_Ver_R3_Service_Assessment_Sampling_Verification_", lubridate::today(), ".xlsx"))
 export_datasets(sp_data_approved, paste0("output/client_data/HER_Ver_R3_SP_Personnel_Attendance_Check_", lubridate::today(), ".xlsx"))
 export_datasets(list(data=vignette_data_approved), paste0("output/client_data/HER_Ver_R3_Vignette_", lubridate::today(), ".xlsx"))
