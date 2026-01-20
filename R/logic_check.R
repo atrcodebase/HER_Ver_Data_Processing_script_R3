@@ -193,7 +193,8 @@ numeric_issues_list <- plyr::rbind.fill(
   hmis_other_num_issues,
   # sp_count_mismatch,
   # vign_other_num_issues,
-  patient_other_num_issues
+  patient_other_num_issues,
+  sp_other_num_issues
 )
 
 

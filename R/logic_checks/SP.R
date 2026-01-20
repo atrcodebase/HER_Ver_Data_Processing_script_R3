@@ -22,6 +22,13 @@ sp_logical_issues <- rbind(
     select(Questions, Values, issue, KEY)
 )
 
+#### Flag Numeric values in Other/Numeric Questions
+sp_other_num_issues = rbind(
+  flag_numeric_values(sp_data_approved$data, sp_tool_path, Tool="SP"),
+  flag_numeric_values(sp_data_approved$Personnel, sp_tool_path, Tool="SP"),
+  flag_numeric_values(sp_data_approved$Absent_Days, sp_tool_path, Tool="SP")
+)
+
 # Chech for repeat sheet mismatches
 sp_count_mismatch <- rbind(
   # Personnel
