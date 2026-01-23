@@ -154,7 +154,7 @@ hmis_logical_issues <- plyr::rbind.fill(
   #### Note: since the patient age is added from the register book, then adding the months since reporting period might not be necessary
   ## Service Type vs Patient Age checks
   hmis_data_approved$Patient_Sampling_Verification %>%
-    filter(Type_of_service_general %in% "Under 5 children morbidities" & as.numeric(Total_Months) >= 60) %>% # 60 + 6 months since reporting period
+    filter(Type_of_service_general %in% "Under 5 children morbidities" & as.numeric(Total_Months) > 60) %>% # 60 + 6 months since reporting period
     mutate(issue="Visited HF for under 5 morbities but the patient age is more than 5 years old",
            Questions = "Type_of_service_general - Total_Months - Age_in_Years",
            Values = paste0(Type_of_service_general, " - ", Total_Months, " - ", as.numeric(Total_Months)/12),
@@ -162,7 +162,7 @@ hmis_logical_issues <- plyr::rbind.fill(
     select(Questions, Values, issue, KEY=KEY_Unique, Tool),
 
   hmis_data_approved$Patient_Sampling_Verification %>%
-    filter(Type_of_service_general %in% "Pentavalent vaccine (3rd dose)" & as.numeric(Total_Months) >= 10) %>% # Dr. Sadat: its should be 0-11 months
+    filter(Type_of_service_general %in% "Pentavalent vaccine (3rd dose)" & as.numeric(Total_Months) > 11) %>% # Dr. Sadat: its should be 0-11 months
     mutate(issue="The Pentavalent vaccine is only administered to children of no more than 4 months old",
            Questions = "Type_of_service_general - Total_Months - Age_in_Years",
            Values = paste0(Type_of_service_general, " - ", Total_Months, " - ", as.numeric(Total_Months)/12),
@@ -170,7 +170,7 @@ hmis_logical_issues <- plyr::rbind.fill(
     select(Questions, Values, issue, KEY=KEY_Unique, Tool),
   
   hmis_data_approved$Patient_Sampling_Verification %>%
-    filter(Type_of_service_general %in% "Growth monitoring of under 2 years" & as.numeric(Total_Months) > 25) %>% # 24 + 6 months since reporting period
+    filter(Type_of_service_general %in% "Growth monitoring of under 2 years" & as.numeric(Total_Months) > 25 & as.numeric(Total_Months) != 8888) %>% # 24 + 6 months since reporting period
     mutate(issue="Visited HF for children below 2 years but age is reported above 2 years",
            Questions = "Type_of_service_general - Total_Months - Age_in_Years",
            Values = paste0(Type_of_service_general, " - ", Total_Months, " - ", as.numeric(Total_Months)/12),
@@ -281,7 +281,7 @@ service_type <- c("Ante-natal care (ANC)",
                   )
 
 hmis_service_type <- hmis_data_approved$data %>% 
-  group_by(HF_Name_based_on_Sample, HF_Code_based_on_sample) %>% 
+  group_by(Site_Visit_ID, HF_Name_based_on_Sample, HF_Code_based_on_sample, HF_Type_based_on_sample) %>% 
   reframe(Total_Service_Types = length(unique(Type_of_service_general)),
           Collected_data = paste0(Type_of_service_general, collapse = " & "),
           Missing_data = paste0(service_type[service_type %notin% Type_of_service_general], collapse = " & "),

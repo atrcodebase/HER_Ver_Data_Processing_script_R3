@@ -20,6 +20,41 @@ qqc_no_stock_card_amc <- read_excel(qqc_tool_path, sheet = "survey", guess_max =
   filter(hint %in% c("[if AMC is not recorded in the stock card/or there is no stock card put 999]",
                      "[if AMC is not recorded in the stock card/or there is no stock card put 9999]")) %>% pull(name)
 
+update_sp_names <- function(df){
+  return(
+    df %>% 
+      mutate(
+        SP_Name_based_on_sample = case_when(
+          Province %in% "Badakhshan" & SP_Name_based_on_sample %in%  "AGA KHAN FOUNDATION AFGHANISTAN (AKF)" ~ "HSDO", 
+          Province %in% "Baghlan" & SP_Name_based_on_sample %in%  "AGA KHAN FOUNDATION AFGHANISTAN (AKF)"  ~ "AADA", 
+          Province %in% "Balkh" & SP_Name_based_on_sample %in% "BAKHTAR DEVELOPMENT NETWORK (BDN)" ~ "BDN", 
+          Province %in% "Bamyan" & SP_Name_based_on_sample %in% "AGA KHAN FOUNDATION AFGHANISTAN (AKF)" ~ "AKF", 
+          Province %in% "Faryab" & SP_Name_based_on_sample %in% "CARE OF AFGHAN FAMILIES (CAF)" ~ "ODESC", 
+          Province %in% "Ghazni" & SP_Name_based_on_sample %in% "AGENCY FOR ASSISTANCE AND DEVELOPMENT OF AFGHANISTAN AADA (AADA)" ~ "UNICEF", 
+          Province %in% "Jawzjan" & SP_Name_based_on_sample %in% "SOLIDARITY FOR AFGHAN FAMILIES (SAF)" ~ "SAF", 
+          Province %in% "Kabul" & SP_Name_based_on_sample %in% "AGA KHAN FOUNDATION AFGHANISTAN (AKF)" ~ "AKF", 
+          Province %in% "Kapisa" & SP_Name_based_on_sample %in% "ORGANIZATION FOR HEALTH PROMOTION AND MANAGEMENT (OHPM)" ~ "OCED", 
+          Province %in% "Khost" & SP_Name_based_on_sample %in% "HEALTH NET TPO (HEALTH NET)" ~ "OPHCD", 
+          Province %in% "Kunar" & SP_Name_based_on_sample %in% "HEALTH NET TPO (HEALTH NET)" ~ "HNTPO", 
+          Province %in% "Kunduz" & SP_Name_based_on_sample %in% "JUST FOR AFGHAN CAPACITY AND KNOWLEDGE (JACK)" ~ "UNICEF", 
+          Province %in% "Laghman" & SP_Name_based_on_sample %in% "HEALTH NET TPO (HEALTH NET)" ~ "OPHA",
+          Province %in% "Logar" & SP_Name_based_on_sample %in% "CARE OF AFGHAN FAMILIES (CAF)" ~ "CAF",  
+          Province %in% "Nangarhar" & SP_Name_based_on_sample %in% "JUST FOR AFGHAN CAPACITY AND KNOWLEDGE (JACK)" ~ "UNICEF", 
+          Province %in% "Nooristan" & SP_Name_based_on_sample %in% "SWEDISH COMMITTEE FOR AFGHANISTAN (SCA)" ~ "ARSDO", 
+          Province %in% "Paktika" & SP_Name_based_on_sample %in% "ORGANIZATION FOR HEALTH PROMOTION AND MANAGEMENT (OHPM)" ~ "BARAN", 
+          Province %in% "Paktya" & SP_Name_based_on_sample %in% "AGENCY FOR ASSISTANCE AND DEVELOPMENT OF AFGHANISTAN AADA (AADA)" ~ "HNTPO",  
+          Province %in% "Panjsher" & SP_Name_based_on_sample %in% "RELIEF INTERNATIONAL-MEDICAL REFRESHER COURSES FOR AFGHANS (RI-MRCA)" ~ "MOVE", 
+          Province %in% "Parwan" & SP_Name_based_on_sample %in% "CARE OF AFGHAN FAMILIES (CAF)" ~ "SAF", 
+          Province %in% "Samangan" & SP_Name_based_on_sample %in% "MEDICAL MANAGEMENT AND RESEARCH COURSES FOR AFGHANISTAN (MMRCA)" ~ "MMRCA", 
+          Province %in% "Sar-e-Pul" & SP_Name_based_on_sample %in% "MEDICAL MANAGEMENT AND RESEARCH COURSES FOR AFGHANISTAN (MMRCA)" ~ "MMRCA", 
+          Province %in% "Takhar" & SP_Name_based_on_sample %in% "AGA KHAN FOUNDATION AFGHANISTAN (AKF)" ~ "AKF", 
+          Province %in% "Wardak" & SP_Name_based_on_sample %in% "SWEDISH COMMITTEE FOR AFGHANISTAN (SCA)" ~ "BDN", 
+          TRUE ~ SP_Name_based_on_sample
+        )
+      ) 
+  )
+}
+
 ## HF Level Data Verification ----------------------------------------------------------------------
 HF_data$data <- HF_data$data %>%
   mutate(Starttime = as.POSIXct(Starttime, format="%a %b %d %Y %H:%M:%S"),
@@ -34,40 +69,40 @@ HF_data$data <- HF_data$data %>%
     HF_Type %in% "BHC+" ~ "Basic Health Centre (BHC +)",
     HF_Type %in% "SHC" ~ "Sub Health Centre (SHC)",
     TRUE ~ HF_Type
-  )) 
-  
+  )) %>% 
+  mutate(SP_Name_Sample_backup=SP_Name_based_on_sample, .after = SP_Name_based_on_sample) %>% 
+  update_sp_names()
+
+
 # Subset & Join main sheet columns
 HF_data_sub <- HF_data$data %>% 
   select(Site_Visit_ID, Province, District, Interview_Type_SV, Region, HF_Type_based_on_sample, 
          HF_Code_based_on_sample, HF_Name_based_on_Sample, SP_Name_based_on_sample, HF_Type, KEY)
 
 # Apply changes on all sheets
-# for(sheet in names(HF_data)){
-#   # Relabel numeric cols
-#   HF_data[[sheet]] <- HF_data[[sheet]] %>%
-#     mutate(across(any_of(HF_numeric_cols), as.character)) %>% 
-#     mutate(across(any_of(HF_numeric_cols), relabel_98_99))
-#   
-#   # Update links
-#   key_col <- "KEY" # ifelse(sheet %in% "data", "KEY", "PARENT_KEY")
-#   HF_data[[sheet]] <- update_media_links(data=HF_data[[sheet]], 
-#                                        tool_path = hf_tool_path,  
-#                                        download_link=download_link,
-#                                        key_col) # No need if data is downloaded from SCTO website
-#   
-#   # Join main Sheet cols
-#   if(sheet!="data"){
-#     HF_data[[sheet]] <- HF_data[[sheet]] %>% 
-#       left_join(HF_data_sub, by=c("KEY")) %>% # New key
-#       relocate(Site_Visit_ID:HF_Type, .before = 1)
-#   }
-# }
+for(sheet in names(HF_data)){
+  # Relabel numeric cols
+  HF_data[[sheet]] <- HF_data[[sheet]] %>%
+    mutate(across(any_of(HF_numeric_cols), as.character)) %>%
+    mutate(across(any_of(HF_numeric_cols), relabel_98_99))
+
+  # Update links
+  key_col <- "KEY" # ifelse(sheet %in% "data", "KEY", "PARENT_KEY")
+  HF_data[[sheet]] <- update_media_links(data=HF_data[[sheet]],
+                                       tool_path = hf_tool_path,
+                                       download_link=download_link,
+                                       key_col) # No need if data is downloaded from SCTO website
+
+  # Join main Sheet cols
+  if(sheet!="data"){
+    HF_data[[sheet]] <- HF_data[[sheet]] %>%
+      left_join(HF_data_sub, by=c("KEY")) %>% # New key
+      relocate(Site_Visit_ID:HF_Type, .before = 1)
+  }
+}
 
 
 # Join Extra Columns
-# HF_data$Drug_Expiration <- HF_data$Drug_Expiration %>% 
-#   left_join(HF_data$data %>% select(n_available_drug, KEY), by="KEY") %>% 
-#   relocate(n_available_drug, .before=Drug_Name_Available)
 HF_data$Drug_Out_Of_Stock <- HF_data$Drug_Out_Of_Stock %>%
   left_join(HF_data$Drug_Availability_Reporting_... %>% select(Drug_Name_Available_RP, Was_Drug_Out_Of_Stock_RP, KEY_Unique), by=c("PARENT_KEY"="KEY_Unique")) %>% 
   relocate(Drug_Name_Available_RP:Was_Drug_Out_Of_Stock_RP, .before = indx6) %>% 
@@ -89,8 +124,9 @@ HF_data$Consumable_Out_Of_Stock_RP <- HF_data$Consumable_Out_Of_Stock_RP %>%
 ## QoC - Interview with Health Workers -------------------------------------------------------------
 qoc_data$data <- qoc_data$data %>%
   mutate(Starttime = as.POSIXct(Starttime, format="%a %b %d %Y %H:%M:%S"),
-         Endtime = as.POSIXct(Endtime, format="%a %b %d %Y %H:%M:%S"))
-         # Confirm_the_number_of_HF_staff_present=str_replace_all(Confirm_the_number_of_HF_staff_present, "StaffRangePerHF", "Staff_Range_Per_HF"))
+         Endtime = as.POSIXct(Endtime, format="%a %b %d %Y %H:%M:%S")) %>% 
+  mutate(SP_Name_Sample_backup=SP_Name_based_on_sample, .after = SP_Name_based_on_sample) %>% 
+  update_sp_names()
 
 # Subset & Join main sheet columns
 qoc_data_sub <- qoc_data$data %>% 
@@ -130,22 +166,39 @@ qqc_data$data <- qqc_data$data %>%
     HF_Type %in% "CHC" ~ "Comprehensive Health Centre (CHC / CHC +)",
     HF_Type %in% "BHC" ~ "Basic Health Centre (BHC/BHC+)",
     TRUE ~ HF_Type
-  ))
+  )) %>% 
+  mutate(SP_Name_Sample_backup=SP_Name_based_on_sample, .after = SP_Name_based_on_sample) %>% 
+  update_sp_names()
 
-# # Update URL links in all sheets
-# for(sheet in names(qqc_data)){
-#   # Update links
-#   key_col <- ifelse(sheet %in% "data", "KEY", "PARENT_KEY")
-#   qqc_data[[sheet]] <- update_media_links(data=qqc_data[[sheet]], 
-#                                          tool_path = qqc_tool_path,  
-#                                          download_link=download_link,
-#                                          key_col) # No need if data is downloaded from SCTO website
-# }
+
+# Update URL links in all sheets
+for(sheet in names(qqc_data)){
+  # Update links
+  key_col <- ifelse(sheet %in% "data", "KEY", "PARENT_KEY")
+  qqc_data[[sheet]] <- update_media_links(data=qqc_data[[sheet]],
+                                         tool_path = qqc_tool_path,
+                                         download_link=download_link,
+                                         key_col) # No need if data is downloaded from SCTO website
+}
 
 ## HMIS Service assessment -------------------------------------------------------------------------
 hmis_data$data <- hmis_data$data %>%
   mutate(Starttime = as.POSIXct(Starttime, format="%a %b %d %Y %H:%M:%S"),
-         Endtime = as.POSIXct(Endtime, format="%a %b %d %Y %H:%M:%S")) 
+         Endtime = as.POSIXct(Endtime, format="%a %b %d %Y %H:%M:%S")) %>% 
+  mutate(SP_Name_Sample_backup=SP_Name_based_on_sample, .after = SP_Name_based_on_sample) %>% 
+  update_sp_names()
+
+
+hmis_cols <- c("Name_Of_Patient", "Father_Name", "Husband_Name", "Grandfather_Name", 
+               "Father_In_Law_Name", "Mother_Name", "Patient_Address", "Registration_Number",
+               "Patient_Age_Years",	"Patient_Age_Months",	"Total_Months")
+hmis_data$Patient_Sampling_Verification <- hmis_data$Patient_Sampling_Verification %>%
+  mutate(across(any_of(hmis_cols), function(x){
+    x = case_when(
+      x %in% c(8888) ~ "Not Written/Not Clear",
+      TRUE ~ as.character(x)
+    )}))
+
 # Labesl
 source("R/labeling/hmis_labels.R") 
 
@@ -182,7 +235,9 @@ for(sheet in names(hmis_data)){
 ## SP Personal Attendance Check --------------------------------------------------------------------
 sp_data$data <- sp_data$data %>%
   mutate(Starttime = as.POSIXct(Starttime, format="%a %b %d %Y %H:%M:%S"),
-         Endtime = as.POSIXct(Endtime, format="%a %b %d %Y %H:%M:%S"))
+         Endtime = as.POSIXct(Endtime, format="%a %b %d %Y %H:%M:%S")) %>% 
+  mutate(SP_Name_Sample_backup=SP_Name_based_on_sample, .after = SP_Name_based_on_sample) %>% 
+  update_sp_names()
 
 # Subset & Join main sheet columns
 sp_data_sub <- sp_data$data %>% 
@@ -213,7 +268,9 @@ for(sheet in names(sp_data)){
 ## Vignette ----------------------------------------------------------------------------------------
 vignette_data <- vignette_data %>%
   mutate(Starttime = as.POSIXct(Starttime, format="%a %b %d %Y %H:%M:%S"),
-         Endtime = as.POSIXct(Endtime, format="%a %b %d %Y %H:%M:%S"))
+         Endtime = as.POSIXct(Endtime, format="%a %b %d %Y %H:%M:%S")) %>% 
+  mutate(SP_Name_Sample_backup=SP_Name_based_on_sample, .after = SP_Name_based_on_sample) %>% 
+  update_sp_names()
 
 # Update links
 vignette_data <- update_media_links(data=vignette_data, tool_path = vignette_tool_path, download_link=download_link) # No need if data is downloaded from SCTO website
@@ -246,7 +303,9 @@ patient_data <- patient_data %>%
     Type_of_service %in% "10" ~ "C-Section",
     Type_of_service %in% "11" ~ "Major Surgery",
     TRUE ~ as.character(Type_of_service)
-    ))
+    )) %>% 
+  mutate(SP_Name_Sample_backup=SP_Name_based_on_sample, .after = SP_Name_based_on_sample) %>% 
+  update_sp_names()
 
 # Update links
 patient_data <- update_media_links(data=patient_data, tool_path = patient_tool_path, download_link=download_link) # No need if data is downloaded from SCTO website

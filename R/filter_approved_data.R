@@ -16,11 +16,6 @@ for(sheet in names(HF_data_approved)[names(HF_data_approved) != "data"]){
   HF_data_approved[[sheet]] <- HF_data_approved[[sheet]] %>%
     filter(KEY %in% HF_data_approved$data[["KEY"]]) # New Key
 }
-# # Filter specific columns
-# HF_data_filtered$Drug_Out_Of_Stock <- HF_data_filtered$Drug_Out_Of_Stock %>%
-#   filter(Was_Drug_Out_Of_Stock_RP %in% "Yes") # Filtered this based on QA request
-# HF_data_filtered$Consumable_Out_Of_Stock_RP <- HF_data_filtered$Consumable_Out_Of_Stock_RP %>%
-#   filter(Was_Consumable_Out_Of_Stock_RP %in% "Yes") # Filtered this based on QA request
 
 ## QoC - Interview with Health Workers -------------------------------------------------------------
 qoc_data_approved$data <- qoc_data_approved$data %>% filter(qa_status %in% approved_qa_status)

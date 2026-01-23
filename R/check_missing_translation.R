@@ -1,72 +1,72 @@
 # Log missing audio translation and missing image QA -----------------------------------------------
 ## HF Data Verification 
-# HF_tool <- read_excel(hf_tool_path, "survey", guess_max = 100000)
-# # Different Image QA columns 
-# hf_diff_cols <- list("enumerator_photo_signboard"="enumerator_photo_signboard_Photo_QA",
-#      "Area_Free_Moisture_Photo"="Area_Free_Moisture_QA",
-#      "Medicine_Stored_Systematic_Photo"="Medicine_Stored_Systematic_QA",
-#      "Old_Storage_available_Photo"="Old_Storage_available_QA",
-#      "Temperature_Chart_Photo"="Temperature_Chart_QA",
-#      "Sunlight_cannot_enter_Photo"="Sunlight_cannot_enter_QA"
-# )
-# 
-# HF_missing_log <- data.frame()
-# # Loop through all the sheets
-# for(sheet in names(HF_data_approved)){
-#   HF_audio_cols <- HF_tool %>% filter(type %in% c("audio") & name %in% names(HF_data_approved[[sheet]])) %>% pull(name) 
-#   HF_image_cols <- HF_tool %>% filter(type %in% c("image") & name %in% names(HF_data_approved[[sheet]])) %>% pull(name)
-#   
-#   # Log
-#   HF_missing_log <-  rbind(
-#     HF_missing_log,
-#     # Translation
-#     log_questions(data=HF_data_approved[[sheet]], columns=HF_audio_cols, key_col="KEY_Unique", suffix="Translation", sheet=sheet),
-#     # Image QA
-#     log_questions(data=HF_data_approved[[sheet]], columns=HF_image_cols, key_col="KEY_Unique", suffix="QA", 
-#                   sheet=sheet, columns_different = hf_diff_cols)
-#   )
-# }
-# 
-# 
-# ## QoC
-# qoc_tool <- read_excel(qoc_tool_path, "survey", guess_max = 100000)
-# qoc_audio_cols <- qoc_tool %>% filter(type %in% c("audio")) %>% pull(name) # No Audio cols
-# qoc_image_cols <- qoc_tool %>% filter(type %in% c("image")) %>% pull(name)
-# 
-# QoC_missing_log <- rbind(
-#   # Translation
-#   log_questions(data=qoc_data_approved$data,
-#                 columns=qoc_audio_cols[qoc_audio_cols %in% names(qoc_data_approved$data)],
-#                 suffix="Translation", sheet="data"),
-#   log_questions(data=qoc_data_approved$Health_Worker_Interview_Ques...,
-#                 columns=qoc_audio_cols[qoc_audio_cols %in% names(qoc_data_approved$Health_Worker_Interview_Ques...)],
-#                 suffix="Translation", sheet="Health_Worker_Interview_Ques..."),
-#   # Image QA
-#   log_questions(data=qoc_data_approved$data,
-#                 columns=qoc_image_cols[qoc_image_cols %in% names(qoc_data_approved$data)],
-#                 suffix="QA", sheet="data"),
-#   log_questions(data=qoc_data_approved$Health_Worker_Interview_Ques...,
-#                 columns=qoc_image_cols[qoc_image_cols %in% names(qoc_data_approved$Health_Worker_Interview_Ques...)],
-#                 suffix="QA", sheet="Health_Worker_Interview_Ques...")
-# )
-# 
-# ## QQC
-# qqc_tool <- read_excel(qqc_tool_path, "survey", guess_max = 100000)
-# qqc_missing_log <- data.frame()
-# # Loop through all the sheets
-# for(sheet in names(qqc_data_approved)){
-#   qqc_image_cols <- qqc_tool %>% filter(type %in% c("image") & name %in% names(qqc_data_approved[[sheet]])) %>% pull(name)
-#   qqc_audio_cols <- qqc_tool %>% filter(type %in% c("audio") & name %in% names(qqc_data_approved[[sheet]])) %>% pull(name)
-#   # Log
-#   qqc_missing_log <-  rbind(
-#     qqc_missing_log,
-#     # Translation
-#     log_questions(data=qqc_data_approved[[sheet]], columns=qqc_audio_cols, suffix="Translation", sheet=sheet),
-#     # Image QA
-#     log_questions(data=qqc_data_approved[[sheet]], columns=qqc_image_cols, 
-#                   columns_different = list("q10_7_photo"="q10_7_QA", "q2_3_3_hg_photo"="q2_3_2_hg_photo_QA"), suffix="QA", sheet=sheet)
-#   )
-# }
+HF_tool <- read_excel(hf_tool_path, "survey", guess_max = 100000)
+# Different Image QA columns
+hf_diff_cols <- list("enumerator_photo_signboard"="enumerator_photo_signboard_Photo_QA",
+     "Area_Free_Moisture_Photo"="Area_Free_Moisture_QA",
+     "Medicine_Stored_Systematic_Photo"="Medicine_Stored_Systematic_QA",
+     "Old_Storage_available_Photo"="Old_Storage_available_QA",
+     "Temperature_Chart_Photo"="Temperature_Chart_QA",
+     "Sunlight_cannot_enter_Photo"="Sunlight_cannot_enter_QA"
+)
+
+HF_missing_log <- data.frame()
+# Loop through all the sheets
+for(sheet in names(HF_data_approved)){
+  HF_audio_cols <- HF_tool %>% filter(type %in% c("audio") & name %in% names(HF_data_approved[[sheet]])) %>% pull(name)
+  HF_image_cols <- HF_tool %>% filter(type %in% c("image") & name %in% names(HF_data_approved[[sheet]])) %>% pull(name)
+
+  # Log
+  HF_missing_log <-  rbind(
+    HF_missing_log,
+    # Translation
+    log_questions(data=HF_data_approved[[sheet]], columns=HF_audio_cols, key_col="KEY_Unique", suffix="Translation", sheet=sheet),
+    # Image QA
+    log_questions(data=HF_data_approved[[sheet]], columns=HF_image_cols, key_col="KEY_Unique", suffix="QA",
+                  sheet=sheet, columns_different = hf_diff_cols)
+  )
+}
+
+
+## QoC
+qoc_tool <- read_excel(qoc_tool_path, "survey", guess_max = 100000)
+qoc_audio_cols <- qoc_tool %>% filter(type %in% c("audio")) %>% pull(name) # No Audio cols
+qoc_image_cols <- qoc_tool %>% filter(type %in% c("image")) %>% pull(name)
+
+QoC_missing_log <- rbind(
+  # Translation
+  log_questions(data=qoc_data_approved$data,
+                columns=qoc_audio_cols[qoc_audio_cols %in% names(qoc_data_approved$data)],
+                suffix="Translation", sheet="data"),
+  log_questions(data=qoc_data_approved$Health_Worker_Interview_Ques...,
+                columns=qoc_audio_cols[qoc_audio_cols %in% names(qoc_data_approved$Health_Worker_Interview_Ques...)],
+                suffix="Translation", sheet="Health_Worker_Interview_Ques..."),
+  # Image QA
+  log_questions(data=qoc_data_approved$data,
+                columns=qoc_image_cols[qoc_image_cols %in% names(qoc_data_approved$data)],
+                suffix="QA", sheet="data"),
+  log_questions(data=qoc_data_approved$Health_Worker_Interview_Ques...,
+                columns=qoc_image_cols[qoc_image_cols %in% names(qoc_data_approved$Health_Worker_Interview_Ques...)],
+                suffix="QA", sheet="Health_Worker_Interview_Ques...")
+)
+
+## QQC
+qqc_tool <- read_excel(qqc_tool_path, "survey", guess_max = 100000)
+qqc_missing_log <- data.frame()
+# Loop through all the sheets
+for(sheet in names(qqc_data_approved)){
+  qqc_image_cols <- qqc_tool %>% filter(type %in% c("image") & name %in% names(qqc_data_approved[[sheet]])) %>% pull(name)
+  qqc_audio_cols <- qqc_tool %>% filter(type %in% c("audio") & name %in% names(qqc_data_approved[[sheet]])) %>% pull(name)
+  # Log
+  qqc_missing_log <-  rbind(
+    qqc_missing_log,
+    # Translation
+    log_questions(data=qqc_data_approved[[sheet]], columns=qqc_audio_cols, suffix="Translation", sheet=sheet),
+    # Image QA
+    log_questions(data=qqc_data_approved[[sheet]], columns=qqc_image_cols,
+                  columns_different = list("q10_7_photo"="q10_7_QA", "q2_3_3_hg_photo"="q2_3_2_hg_photo_QA"), suffix="QA", sheet=sheet)
+  )
+}
 
 ## HMIS Service assessment
 hmis_tool <- read_excel(hmis_tool_path, "survey", guess_max = 100000)
@@ -134,10 +134,10 @@ excluded_cols <- read_excel("input/translation_columns.xlsx")
 
 missing_translation_log <- rbind(
   # ## QoC
-  # missing_translation(data = qoc_data_approved$data, KEY = "KEY", excluded_cols$question[excluded_cols$Tool=="QoC"]) %>% mutate(Tool = "QoC"),
-  # missing_translation(data = qoc_data_approved$Health_Worker_Interview_Ques..., KEY = "KEY", excluded_cols$question[excluded_cols$Tool=="QoC"]) %>% mutate(Tool = "QoC"),
-  # ## QQC
-  # missing_translation(data = qqc_data_approved$data, KEY = "KEY", excluded_cols$question[excluded_cols$Tool=="QQC"]) %>% mutate(Tool = "QQC"),
+  missing_translation(data = qoc_data_approved$data, KEY = "KEY", excluded_cols$question[excluded_cols$Tool=="QoC"]) %>% mutate(Tool = "QoC"),
+  missing_translation(data = qoc_data_approved$Health_Worker_Interview_Ques..., KEY = "KEY", excluded_cols$question[excluded_cols$Tool=="QoC"]) %>% mutate(Tool = "QoC"),
+  ## QQC
+  missing_translation(data = qqc_data_approved$data, KEY = "KEY", excluded_cols$question[excluded_cols$Tool=="QQC"]) %>% mutate(Tool = "QQC"),
   ## SP Attendances
   missing_translation(data = sp_data_approved$data, KEY = "KEY", excluded_cols$question[excluded_cols$Tool=="SP_data"]) %>% mutate(Tool = "SP_data"),
   missing_translation(data = sp_data_approved$Personnel, KEY = "KEY", excluded_cols$question[excluded_cols$Tool=="SP_Personnel"]) %>% mutate(Tool = "SP_Personnel"),
@@ -148,14 +148,14 @@ missing_translation_log <- rbind(
   missing_translation(data = patient_data_approved, KEY = "KEY", excluded_cols$question[excluded_cols$Tool=="Patient"]) %>% mutate(Tool = "Patient")
 )
 
-# ## HF Data Verification 
-# for(sheet in names(HF_data_approved)){
-#   missing_translation_log <- rbind(
-#     missing_translation_log,
-#     missing_translation(data = HF_data_approved[[sheet]], KEY = "KEY_Unique", excluded_cols$question[excluded_cols$Tool==paste0("HF_", sheet)]) %>% 
-#       mutate(Tool = paste0("HF_", sheet))
-#   )
-# }
+## HF Data Verification
+for(sheet in names(HF_data_approved)){
+  missing_translation_log <- rbind(
+    missing_translation_log,
+    missing_translation(data = HF_data_approved[[sheet]], KEY = "KEY_Unique", excluded_cols$question[excluded_cols$Tool==paste0("HF_", sheet)]) %>%
+      mutate(Tool = paste0("HF_", sheet))
+  )
+}
 
 ## HMIS Service assessment
 for(sheet in names(hmis_data_approved)){
@@ -169,9 +169,9 @@ for(sheet in names(hmis_data_approved)){
 ## Export List -------------------------------------------------------------------------------------
 ## Missing Translation and QA status
 missing_translation_QA_log <- rbind(
-  # HF_missing_log %>% mutate(Tool = "HF_Verification"),
-  # QoC_missing_log %>% mutate(Tool = "QoC"),
-  # qqc_missing_log %>% mutate(Tool = "QQC"),
+  HF_missing_log %>% mutate(Tool = "HF_Verification"),
+  QoC_missing_log %>% mutate(Tool = "QoC"),
+  qqc_missing_log %>% mutate(Tool = "QQC"),
   hmis_missing_log %>% mutate(Tool = "HMIS"),
   sp_missing_log %>% mutate(Tool = "SP_Attendance"),
   vig_missing_log %>% mutate(Tool = "Vignette"),
