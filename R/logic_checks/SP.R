@@ -31,8 +31,8 @@ sp_other_num_issues = rbind(
 
 ## HF Level checks ---------------------------------------------------------------------------------
 sampled_sps <- read_excel("input/sample/Sampled_SPs_vs_UNICEF_list.xlsx")
-sampled_sps <- sampled_sps$Sampled_SPs %>% unique()
-sp_data_approved$data 
+# sampled_sps <- sampled_sps$Sampled_SPs %>% unique()
+# sp_data_approved$data 
   
 
 sp_interviews <- sp_data_approved$data %>% 
@@ -61,8 +61,6 @@ sp_interviews <- sp_data_approved$data %>%
           Duplicated_types = paste0(unique(SP_Name_based_on_sample[duplicated(SP_Name_based_on_sample)]), collapse = " - ")) %>% 
   ungroup() %>% 
   mutate(Missing_data = paste0(sampled_sps$Sampled_SPs[sampled_sps$Sampled_SPs %notin% SP_Name_based_on_sample], collapse = " & "))
-      
-samples    
           
   # 
   # reframe(Total_Service_Types = length(unique(Type_of_service_general)),
@@ -95,3 +93,4 @@ sp_count_mismatch <- rbind(
   rowwise() %>% 
   filter(repeat_sheet_count %notin% main_sheet_count & !(is.na(repeat_sheet_count) & main_sheet_count == 0)) %>% 
   mutate(Tool="SP")
+
